@@ -38,7 +38,8 @@ def epoch_to_iso(epoch_time):
 
 #class difinition of ZabbixServer
 class ZabbixServer(object):
-    """This class is defined to access to zabbix server API."""
+    """This class is defined to access to zabbix server API,
+        to get informations vi athe API."""
     def __init__(self, address = 'http://192.168.56.102/zabbix/',
                  header = {'Content-Type':'application/json-rpc'},
                  user = 'admin', password = 'zabbix'):
@@ -138,6 +139,34 @@ class ZabbixServer(object):
             dict['clock'] = epoch_to_iso(dict['clock'])
         return history_get_list
 
+    def save_hist(self, item_id,
+                from_y, from_mon, from_d, from_h, from_min,
+                to_y, to_mon, to_d, to_h, to_min, save_as = 'fuga.csv'):
+        hoge_time = datetime.datetime(from_y, from_mon, from_d, from_h, from_min)
+        from_time = time.mktime(hoge_time.timetuple())
+        fuga_time = datetime.datetime(to_y, to_mon, to_d, to_h, to_min)
+        to_time = time.mktime(fuga_time.timetuple())
+        item_info = self.item_attr(item_id)
+        host_info = self.host_attr(item_info['hostid'])
+        info = {}
+        info['host_name'] = host_info['name']
+        info['description'] = host_info['description']
+        info['item_name'] = item_info['name']
+        info['unit'] = item_info['units']
+        info_pandas = pandas.DataFrame([info])
+        info_pandas.to_csv(save_as)
+        hist_list = self.fetch(method = 'history.get',
+                                params = {'history':self.item_attr(item_id,'value_type'),
+                                          'itemids' : item_id,
+                                          'time_from':from_time,
+                                          'time_till':to_time})
+        for dict in hist_list:
+            dict['clock'] = epoch_to_iso(dict['clock'])
+        hist_panda = pandas.DataFrame(hist_list)
+        hist_panda[['clock', 'value']].to_csv(save_as, mode = 'a')
+
+
+
     def save_history_of_item(self, item_id, save_as = 'hoge.csv', time_from='', time_till=''):
         """Assume save_as as string of path and name where file is saved,
            time_from and time_till as string of time YYYY/MM/DD.
@@ -156,47 +185,37 @@ class ZabbixServer(object):
         history_pandas[['clock', 'value']].to_csv(save_as, mode = 'a')
 
 
-
-import bottle
-
 zbx = ZabbixServer()
 
-@bottle.route('/hello')
-def hello():
-	#describe tmplate
-	return bottle.template('Hello {{string}}', string = 'world')
+import bottle, wtforms
 
-@bottle.post('/form')
-def form():
-	#get parameters
-	id = bottle.request.forms.get('id')
-	return bottle.template('id = {{id}}', id = id)
+class HistForm(wtforms.form.Form):
+    host_id = wtforms.fields.SelectField(u'Host id', coerce = str)
+    items_id = wtforms.fields.SelectField(u'item id',choices = [('hoge', 'fuga')], coerce = str)
+    from_time = wtforms.StringField('datetime from')
+    to_time = wtforms.StringField('datetime to')
+    save = wtforms.fields.SubmitField('save')
+form = HistForm()
 
-@bottle.route('/hoge')
-def hoge():
-    hogehoge = fetch()
-    return bottle.template(hogehoge)
+def show_hosts():
+    hosts = zbx.hosts_dict
+    form.host_id.choices =  [(hosts[key], key) for key in hosts]
 
-@bottle.route('/zabi')
-def zabi():
-    host_dict = zbx.hosts_dict
-    host_list = []
-    for key in host_dict:
-        host_list.append(key)
-        host_list.append(host_dict[key])
-    return host_dict
+def show_items(id):
+    items = zbx.get_items_dict(id)
+    return [(items[key], key) for key in items]
 
-@bottle.route('/itemofhost/<id>')
-def itemofhost(id):
-    hostid = id
-    items = zbx.get_items_dict(hostid)
-    return items
+@bottle.get('/history')
+def index(hostid = '', itemid = ''):
+    form = HistForm()
+    return bottle.template('index', hostid = hostid, itemid = itemid)
 
-@bottle.route('/itemattr/<hostid>/<itemid>')
-def itemattr(hostid, itemid):
-    itemid = itemid  
-    return zbx.item_attr(itemid)
+@bottle.get('/save')
+def save():
+    #get parameters
+    show_hosts()
+    return bottle.template('save.tpl', form = form)
 
 #start built in server
 if __name__ == '__main__':
-	bottle.run(host = 'localhost', port = 8080, debug = True, reloader = True)
+    bottle.run(host = 'localhost', port = 8080, debug = True, reloader = True)
