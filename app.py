@@ -40,7 +40,7 @@ def epoch_to_iso(epoch_time):
 class ZabbixServer(object):
     """This class is defined to access to zabbix server API,
         to get informations vi athe API."""
-    def __init__(self, address = 'http://127.0.0.1/zabbix/',
+    def __init__(self, address = 'http://192.168.56.102/zabbix/',
                  header = {'Content-Type':'application/json-rpc'},
                  user = 'admin', password = 'password'):
         self.address = address
@@ -190,8 +190,8 @@ zbx = ZabbixServer()
 import bottle, wtforms
 
 class HistForm(wtforms.form.Form):
-    host_id = wtforms.fields.SelectField(u'Host id', coerce = str)
-    items_id = wtforms.fields.SelectField(u'item id',choices = [('hoge', 'fuga')], coerce = str)
+    host_id = wtforms.fields.SelectField(u'Host id',coerce = str)
+    items_id = wtforms.fields.SelectField(u'item id', coerce = str)
     from_time = wtforms.StringField('datetime from')
     to_time = wtforms.StringField('datetime to')
     save = wtforms.fields.SubmitField('save')
@@ -199,10 +199,11 @@ form = HistForm()
 
 def show_hosts():
     hosts = zbx.hosts_dict
-    form.host_id.choices =  [(hosts[key], key) for key in hosts]
+    form.host_id.choices =[("","")] + [(hosts[key], key) for key in hosts]
 
 def show_items(id):
     items = zbx.get_items_dict(id)
+    form.items_id.choices = [(items[key], key) for key in items]
     return [(items[key], key) for key in items]
 
 @bottle.get('/history')
@@ -217,17 +218,19 @@ def ask_host():
     return bottle.template('save.tpl', form = form)
 @bottle.post('/save')
 def save():
-    if bottle.request.forms.host_id and bottle.request.forms.items_id:
-        save_hist(bottle.request.forms.items_id)
-        return template('save.tpl', form = form)
-
-    elif bottle.request.forms.host_id:
+    if bottle.request.forms.host_id:
+        print bottle.request.forms.decode()
         items = show_items(bottle.request.forms.host_id)
-        return template('save.tpl', form = form)
+        print bottle.request.forms.host_id
+        print items
+        return bottle.template('save.tpl', form = form, selected = bottle.request.forms.hosts_id)
+    elif bottle.request.forms.items_id:
+        save_hist(bottle.request.forms.items_id)
+        return bottle.template('save.tpl', form = form)
     else:
-        return template('save.tpl', form = form)
-"""
+        return bottle.template('save.tpl', form = form)
+
 #start built in server
 if __name__ == '__main__':
     bottle.run(host = '0.0.0.0', port = 8080, debug = True, reloader = True)
-"""
+
