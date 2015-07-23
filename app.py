@@ -40,9 +40,9 @@ def epoch_to_iso(epoch_time):
 class ZabbixServer(object):
     """This class is defined to access to zabbix server API,
         to get informations vi athe API."""
-    def __init__(self, address = 'http://192.168.56.102/zabbix/',
+    def __init__(self, address = 'http://127.0.0.1/zabbix/',
                  header = {'Content-Type':'application/json-rpc'},
-                 user = 'admin', password = 'zabbix'):
+                 user = 'admin', password = 'password'):
         self.address = address
         if address[-1] != '/':
             address += '/'
@@ -211,11 +211,19 @@ def index(hostid = '', itemid = ''):
     return bottle.template('index', hostid = hostid, itemid = itemid)
 
 @bottle.get('/save')
-def save():
+def ask_host():
     #get parameters
     show_hosts()
     return bottle.template('save.tpl', form = form)
-
+@bottle.post('/save')
+def save():
+    if bottle.request.forms.host_id and ! bottle.request.forms.items_id:
+        items = show_items(bottle.request.forms.host_id)
+        return template('save.tpl', form = form)
+    elif bottle.request.forms.host_id and bottle.request.forms.items_id:
+        save_hist(bottle.request.forms.items_id)
+        return template('save.tpl', form = form)
+        
 #start built in server
 if __name__ == '__main__':
-    bottle.run(host = 'localhost', port = 8080, debug = True, reloader = True)
+    bottle.run(host = '0.0.0.0', port = 8080, debug = True, reloader = True)
