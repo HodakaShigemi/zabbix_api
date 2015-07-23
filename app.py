@@ -217,13 +217,17 @@ def ask_host():
     return bottle.template('save.tpl', form = form)
 @bottle.post('/save')
 def save():
-    if bottle.request.forms.host_id and ! bottle.request.forms.items_id:
-        items = show_items(bottle.request.forms.host_id)
-        return template('save.tpl', form = form)
-    elif bottle.request.forms.host_id and bottle.request.forms.items_id:
+    if bottle.request.forms.host_id and bottle.request.forms.items_id:
         save_hist(bottle.request.forms.items_id)
         return template('save.tpl', form = form)
-        
+
+    elif bottle.request.forms.host_id:
+        items = show_items(bottle.request.forms.host_id)
+        return template('save.tpl', form = form)
+    else:
+        return template('save.tpl', form = form)
+"""
 #start built in server
 if __name__ == '__main__':
     bottle.run(host = '0.0.0.0', port = 8080, debug = True, reloader = True)
+"""
