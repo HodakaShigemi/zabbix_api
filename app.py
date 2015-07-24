@@ -1,4 +1,4 @@
-import json, urllib2, datetime, time, pandas
+import json, urllib2, datetime, time, re, pandas
 
 def str_to_epoch(str_time):
     """Assume str_time as string of time YYYY/MM/DD or now.
@@ -11,8 +11,7 @@ def str_to_epoch(str_time):
     elif str_time == 'on_the_hour':
          hoge_time = datetime.datetime(now.year, now.month, now.day, now.hour)
     else:
-        print str_time
-        time_splited = str_time.split(',')
+        time_splited = re.split(r'\W', str_time)
         year = int(time_splited[0])
         month = int(time_splited[1])
         date = int(time_splited[2])
@@ -81,7 +80,7 @@ class ZabbixServer(object):
            The dictionary is saved in self.hosts_dict."""
         host_get_list = self.fetch(method = 'host.get')
         for elm in host_get_list:
-            self.hosts_dict[elm['name']] = elm['hostid']
+            self.hosts_dict[elm['hostid']] = elm['name']
 
     def host_attr(self, host_id, host_attr=''):
         host_get_list = self.fetch('host.get', params={'hostids':host_id})
@@ -106,7 +105,7 @@ class ZabbixServer(object):
         items = self.get_items_of_host(host_id)
         item_dict = {}
         for key in items:
-            item_dict[key] = items[key]['itemid']
+            item_dict[items[key]['itemid']] = key 
         return item_dict
 
     def item_attr(self, item_id, item_attr = ''):
@@ -167,7 +166,7 @@ class ZabbixServer(object):
 
 
 
-    def save_history_of_item(self, item_id, save_as = 'hoge.csv', time_from='', time_till=''):
+    def save_history_of_item(self, item_id, time_from='', time_till='', save_as = 'hoge.csv'):
         """Assume save_as as string of path and name where file is saved,
            time_from and time_till as string of time YYYY/MM/DD.
            It save history (time_from ~ time_till) of item as csv file."""
@@ -183,7 +182,6 @@ class ZabbixServer(object):
         history_of_item = self.get_history_of_item(item_id, time_from, time_till)
         history_pandas = pandas.DataFrame(history_of_item)
         history_pandas[['clock', 'value']].to_csv(save_as, mode = 'a')
-
 
 zbx = ZabbixServer()
 
@@ -203,11 +201,11 @@ form = HistForm()
 
 def show_hosts():
      hosts = zbx.hosts_dict
-     return [("","")] + [(hosts[key], key) for key in hosts]
+     return [("","")] + [(key, hosts[key]) for key in hosts]
 
 def show_items(id):
     items = zbx.get_items_dict(id)
-    return [(items[key], key) for key in items]
+    return [(key, items[key]) for key in items]
 
 @bottle.get('/history')
 def index(hostid = '', itemid = ''):
@@ -223,13 +221,17 @@ def ask_host():
 def save():
     if bottle.request.forms.host_id:
         print bottle.request.forms.decode()
-        # form.iter_choices()
+        # form.iter_choices(), 
         host_id = bottle.request.forms.host_id
+        host_name = zbx.hosts_dict[host_id]
         form.items_id.choices = show_items(host_id)
         print bottle.request.forms.host_id
-        return bottle.template('save.tpl', form = form)
+        return bottle.template('save.tpl', form = form, host_info = host_name)
     elif bottle.request.forms.items_id:
-        zbx.save_history_of_item(bottle.request.forms.items_id)
+        item_id = bottle.request.forms.items_id
+	from_time = bottle.request.forms.from_time
+        to_time = bottle.request.forms.to_time
+        zbx.save_history_of_item(item_id, from_time, to_time)
         return bottle.template('save.tpl', form = form)
     else:
         return bottle.template('save.tpl', form = form)
