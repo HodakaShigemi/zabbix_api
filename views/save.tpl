@@ -2,16 +2,21 @@
 <header>
 </header>
 <body>
-{{ !form.host_id.label}}
-<form method='post'>
-        {{ !form.host_id(onChange='this.form.submit()')}}
+
+
+<form method="post">
+<select id = "host_id" name="host_id" onChange="this.form.submit()">
+<% for host in hosts:
+    if host[0] == host_id: %>
+        <option value="{{ host[0] }}" selected>{{ host[1] }}</option>
+        % else:
+            <option value="{{ host[0] }}">{{ host[1] }}</option>
+    <% end
+end%>
+</select>
 </form>
-    % try:
-        {{ host_info}}
-    <% except NameError:
-    pass
-    end %>
-    % try:
+
+% try:
 <form method='post'>
         {{ !form.items_id}}
         {{ !form.from_time}}

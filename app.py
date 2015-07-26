@@ -1,4 +1,4 @@
-import json, urllib2, datetime, time, re, pandas
+import json, urllib2, datetime, time, re, pandas, os
 
 def str_to_epoch(str_time):
     """Assume str_time as string of time YYYY/MM/DD or now.
@@ -39,7 +39,7 @@ def epoch_to_iso(epoch_time):
 class ZabbixServer(object):
     """This class is defined to access to zabbix server API,
         to get informations vi athe API."""
-    def __init__(self, address = 'http://127.0.0.1/zabbix/',
+    def __init__(self, address = 'http://192.168.56.102/zabbix/',
                  header = {'Content-Type':'application/json-rpc'},
                  user = 'admin', password = 'password'):
         self.address = address
@@ -177,11 +177,16 @@ class ZabbixServer(object):
         info['description'] = host_info['description']
         info['item_name'] = item_info['name']
         info['unit'] = item_info['units']
+        key = item_info['key_']
         info_pandas = pandas.DataFrame([info])
         info_pandas.to_csv(save_as)
         history_of_item = self.get_history_of_item(item_id, time_from, time_till)
+        time_stamp = history_of_item[0]['clock'] + history_of_item[-1]['clock']
+        time_stamp = time_stamp.translate(None, ' -:')
         history_pandas = pandas.DataFrame(history_of_item)
         history_pandas[['clock', 'value']].to_csv(save_as, mode = 'a')
+        rename = time_stamp + key + '.csv'
+        os.rename(save_as, rename)
 
 zbx = ZabbixServer()
 
@@ -193,15 +198,15 @@ class HistForm(wtforms.form.Form):
     from_time = wtforms.StringField('datetime from')
     to_time = wtforms.StringField('datetime to')
     save = wtforms.fields.SubmitField('save')
-    def iter_choices(self):
+"""    def iter_choices(self):
         current_value = self.data if sele.data is not None else self.coerce(sel.default)
         for value, vabel in self.choices:
-            yield (value, vabel, self.coerce(value) == current_value)
+            yield (value, vabel, self.coerce(value) == current_value)"""
 form = HistForm()
 
 def show_hosts():
      hosts = zbx.hosts_dict
-     return [("","")] + [(key, hosts[key]) for key in hosts]
+     return [("-","-")] + [(key, hosts[key]) for key in hosts]
 
 def show_items(id):
     items = zbx.get_items_dict(id)
@@ -215,24 +220,27 @@ def index(hostid = '', itemid = ''):
 @bottle.get('/save')
 def ask_host():
     #get parameters
-    form.host_id.choices = show_hosts()
-    return bottle.template('save.tpl', form = form)
+    hosts = show_hosts()
+    return bottle.template('save.tpl', form = form, hosts = hosts, host_id = "-")
 @bottle.post('/save')
 def save():
     if bottle.request.forms.host_id:
         print bottle.request.forms.decode()
         # form.iter_choices(), 
+        hosts = show_hosts()
         host_id = bottle.request.forms.host_id
-        host_name = zbx.hosts_dict[host_id]
+        form.host_id.choices = hosts
         form.items_id.choices = show_items(host_id)
-        print bottle.request.forms.host_id
-        return bottle.template('save.tpl', form = form, host_info = host_name)
+        return bottle.template('save.tpl', form = form, hosts = hosts, host_id = host_id)
     elif bottle.request.forms.items_id:
+        hosts = show_hosts()
+        host_id = bottle.request.forms.host_id
         item_id = bottle.request.forms.items_id
-	from_time = bottle.request.forms.from_time
+        print item_id
+        from_time = bottle.request.forms.from_time
         to_time = bottle.request.forms.to_time
         zbx.save_history_of_item(item_id, from_time, to_time)
-        return bottle.template('save.tpl', form = form)
+        return bottle.template('save.tpl', form = form, hosts = hosts, host_id = host_id)
     else:
         return bottle.template('save.tpl', form = form)
 #start built in server
