@@ -39,7 +39,7 @@ def epoch_to_iso(epoch_time):
 class ZabbixServer(object):
     """This class is defined to access to zabbix server API,
         to get informations vi athe API."""
-    def __init__(self, address = 'http://192.168.56.102/zabbix/',
+    def __init__(self, address = 'http://127.0.0.1/zabbix/',
                  header = {'Content-Type':'application/json-rpc'},
                  user = 'admin', password = 'password'):
         self.address = address
@@ -177,16 +177,18 @@ class ZabbixServer(object):
         info['description'] = host_info['description']
         info['item_name'] = item_info['name']
         info['unit'] = item_info['units']
+        host_name = host_info['name']
+        host_name = host_name.replace('/','')
         key = item_info['key_']
         info_pandas = pandas.DataFrame([info])
         info_pandas.to_csv(save_as)
         history_of_item = self.get_history_of_item(item_id, time_from, time_till)
-        time_stamp = history_of_item[0]['clock'] + history_of_item[-1]['clock']
-        time_stamp = time_stamp.translate(None, ' -:')
+        time_stamp = history_of_item[0]['clock'].translate(None, ' -:')
+        time_stamp = time_stamp +'-'+ history_of_item[-1]['clock'].translate(None, ' -:')
         history_pandas = pandas.DataFrame(history_of_item)
         history_pandas[['clock', 'value']].to_csv(save_as, mode = 'a')
-        rename = time_stamp + key + '.csv'
-        os.rename(save_as, rename)
+        rename = time_stamp + key + host_name + '.csv'
+        return save_as, rename
 
 zbx = ZabbixServer()
 
@@ -239,8 +241,9 @@ def save():
         print item_id
         from_time = bottle.request.forms.from_time
         to_time = bottle.request.forms.to_time
-        zbx.save_history_of_item(item_id, from_time, to_time)
-        return bottle.template('save.tpl', form = form, hosts = hosts, host_id = host_id)
+        save_as, rename = zbx.save_history_of_item(item_id, from_time, to_time)
+        # return bottle.template('save.tpl', form = form, hosts = hosts, host_id = host_id)
+        return bottle.static_file(save_as, root = './', download = rename)
     else:
         return bottle.template('save.tpl', form = form)
 #start built in server
