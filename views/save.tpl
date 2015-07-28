@@ -1,5 +1,6 @@
 <html>
 <header>
+<title>Save History</title>
 </header>
 <body>
 
@@ -19,7 +20,9 @@ end%>
 % try:
 <form method='post'>
         {{ !form.items_id}}
+        <br>
         {{ !form.from_time}}
+        <br>
         {{ !form.to_time}}
         {{ !form.save}}
 </form>

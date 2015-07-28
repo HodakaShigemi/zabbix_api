@@ -195,10 +195,10 @@ zbx = ZabbixServer()
 import bottle, wtforms
 
 class HistForm(wtforms.form.Form):
-    host_id = wtforms.fields.SelectField(u'Host id',coerce = str)
+    host_id = wtforms.fields.SelectField(label=u'Host id',coerce = str)
     items_id = wtforms.fields.SelectField(u'item id', coerce = str)
-    from_time = wtforms.StringField('datetime from')
-    to_time = wtforms.StringField('datetime to')
+    from_time = wtforms.StringField(label='Time from')
+    to_time = wtforms.StringField(label='Time to')
     save = wtforms.fields.SubmitField('save')
 """    def iter_choices(self):
         current_value = self.data if sele.data is not None else self.coerce(sel.default)
