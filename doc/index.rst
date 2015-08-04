@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to zabbix_api's documentation!
-======================================
+Zabbix Server and Zabbix API How to 
+=================================================
 
 Contents:
 
@@ -14,10 +14,7 @@ Contents:
    zabbix_server
    zabbix_api
 
-Indices and tables
+Tables
 ==================
 
-* :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`
-
