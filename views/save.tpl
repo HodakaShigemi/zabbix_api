@@ -21,9 +21,9 @@ end%>
 <form method='post'>
         {{ !form.items_id}}
         <br>
-        {{ !form.from_time}}
-        <br>
-        {{ !form.to_time}}
+        {{ !form.from_time(placeholder="YYYY/MM/DD hh:mm")}}
+       ~ 
+        {{ !form.to_time(placeholder="YYYY/MM/DD hh:mm")}}
         {{ !form.save}}
 </form>
     <% except TypeError:
