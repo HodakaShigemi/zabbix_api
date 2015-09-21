@@ -39,7 +39,7 @@ def epoch_to_iso(epoch_time):
 class ZabbixServer(object):
     """This class is defined to access to zabbix server API,
         to get informations vi athe API."""
-    def __init__(self, address = 'http://127.0.0.1/zabbix/',
+    def __init__(self, address = 'http://192.168.56.102/zabbix/',
                  header = {'Content-Type':'application/json-rpc'},
                  user = 'admin', password = 'password'):
         self.address = address
