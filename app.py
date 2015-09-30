@@ -10,6 +10,10 @@ def str_to_epoch(str_time):
          hoge_time = datetime.datetime(now.year, now.month, now.day)
     elif str_time == 'on_the_hour':
          hoge_time = datetime.datetime(now.year, now.month, now.day, now.hour)
+    elif str_time == 'last_month':
+         hoge_time = datetime.datetime(now.year, now.month -1, 1)
+    elif str_time == 'this_month':
+         hoge_time = datetime.datetime(now.year, now.month, 1) 
     else:
         time_splited = re.split(r'\W', str_time)
         year = int(time_splited[0])
@@ -89,6 +93,37 @@ class ZabbixServer(object):
         else:
             return host_get_list[0]
 
+    def get_graph_id_dict(self, host_ids):
+        """Assume host_ids as host id stirng or list.
+           It returns dictionary whose keys are graphs' names """
+        graph_get_list = self.fetch(method = 'graph.get', 
+                                    params = {'hostids':str(host_ids)})
+        graphs_dict = {}
+        for elm in graph_get_list:
+            graphs_dict[elm['name']] = elm['graphid']
+        return graphs_dict
+
+    def save_graph_image(self, graph_id, time_from = '', time_till = '', width = '900', height = '300', border ='0', save_as = 'fuga.jpg'):
+        """Assume graph_id as string of graph id, time_from and time_till as string of time YYYY/MM/DD.
+           It saves graph image of graph_id."""
+        if time_from == '':
+            time_from = 'last_month'
+            start_time = datetime.datetime
+        if time_till == '':
+            time_till = 'this_month'
+        time_from = str_to_epoch(time_from)
+        time_till = str_to_epoch(time_till)
+        period = str(int(time_till - time_from))
+        time_from = epoch_to_iso(time_from)
+        stime = time_from.translate(None, '- :')
+        opener = urllib2.build_opener()
+        opener.addheaders.append(("cookie", "zbx_sessionid=" + self.auth_key))
+        graph_url = self.address + "chart2.php" 
+        graph_get_url = "%s?graphid=%s&width=%s&height=%s&border=%s&period=%s&stime%s" % (graph_url,
+                         graph_id, width, height, border, period, stime)
+        graph = opener.open(graph_get_url)
+        return graph.read()
+
     def get_items_of_host(self, host_ids):
         """Assume host_ids as host id stirng or list.
            It returns dictionary whose keys are item keys, and values are item IDs."""
@@ -137,34 +172,6 @@ class ZabbixServer(object):
         for dict in history_get_list:
             dict['clock'] = epoch_to_iso(dict['clock'])
         return history_get_list
-
-    def save_hist(self, item_id,
-                from_y, from_mon, from_d, from_h, from_min,
-                to_y, to_mon, to_d, to_h, to_min, save_as = 'fuga.csv'):
-        hoge_time = datetime.datetime(from_y, from_mon, from_d, from_h, from_min)
-        from_time = time.mktime(hoge_time.timetuple())
-        fuga_time = datetime.datetime(to_y, to_mon, to_d, to_h, to_min)
-        to_time = time.mktime(fuga_time.timetuple())
-        item_info = self.item_attr(item_id)
-        host_info = self.host_attr(item_info['hostid'])
-        info = {}
-        info['host_name'] = host_info['name']
-        info['description'] = host_info['description']
-        info['item_name'] = item_info['name']
-        info['unit'] = item_info['units']
-        info_pandas = pandas.DataFrame([info])
-        info_pandas.to_csv(save_as)
-        hist_list = self.fetch(method = 'history.get',
-                                params = {'history':self.item_attr(item_id,'value_type'),
-                                          'itemids' : item_id,
-                                          'time_from':from_time,
-                                          'time_till':to_time})
-        for dict in hist_list:
-            dict['clock'] = epoch_to_iso(dict['clock'])
-        hist_panda = pandas.DataFrame(hist_list)
-        hist_panda[['clock', 'value']].to_csv(save_as, mode = 'a')
-
-
 
     def save_history_of_item(self, item_id, time_from='', time_till='', save_as = 'hoge.csv'):
         """Assume save_as as string of path and name where file is saved,
