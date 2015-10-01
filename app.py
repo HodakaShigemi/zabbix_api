@@ -43,7 +43,7 @@ def epoch_to_iso(epoch_time):
 class ZabbixServer(object):
     """This class is defined to access to zabbix server API,
         to get informations vi athe API."""
-    def __init__(self, address = 'http://192.168.56.102/zabbix/',
+    def __init__(self, address = 'http://127.0.0.1/zabbix/',
                  header = {'Content-Type':'application/json-rpc'},
                  user = 'admin', password = 'password'):
         self.address = address
@@ -119,10 +119,12 @@ class ZabbixServer(object):
         opener = urllib2.build_opener()
         opener.addheaders.append(("cookie", "zbx_sessionid=" + self.auth_key))
         graph_url = self.address + "chart2.php" 
-        graph_get_url = "%s?graphid=%s&width=%s&height=%s&border=%s&period=%s&stime%s" % (graph_url,
+        graph_get_url = "%s?graphid=%s&width=%s&height=%s&border=%s&period=%s&stime=%s" % (graph_url,
                          graph_id, width, height, border, period, stime)
         graph = opener.open(graph_get_url)
-        return graph.read()
+        graph_file = open('fuga.jpg', 'w')
+        graph_file.write(graph.read())
+        graph_file.close()
 
     def get_items_of_host(self, host_ids):
         """Assume host_ids as host id stirng or list.
@@ -253,6 +255,11 @@ def save():
         return bottle.static_file(save_as, root = './', download = rename)
     else:
         return bottle.template('save.tpl', form = form)
+
+@bottle.get('/graph')
+def send_graph():
+    return bottle.static_file('fuga.jpg', root = './')
+
 #start built in server
 if __name__ == '__main__':
     bottle.run(host = '0.0.0.0', port = 8080, debug = True, reloader = True)
