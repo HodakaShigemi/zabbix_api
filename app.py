@@ -122,7 +122,10 @@ class ZabbixServer(object):
         graph_get_url = "%s?graphid=%s&width=%s&height=%s&border=%s&period=%s&stime%s" % (graph_url,
                          graph_id, width, height, border, period, stime)
         graph = opener.open(graph_get_url)
-        return graph.read()
+        f = open(save_as, 'w')
+        f.write(graph.read())
+        f.close()
+
 
     def get_items_of_host(self, host_ids):
         """Assume host_ids as host id stirng or list.
