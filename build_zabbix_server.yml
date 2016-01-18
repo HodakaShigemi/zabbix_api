@@ -71,5 +71,5 @@
       service: name=zabbix-server state=started enabled=yes
       notify: restart httpd
 
-#    - name: allow http connection from network
-#      iptables: chain=INPUT protocol=tcp destination_port=http jump=ACCEPT
+    - name: allow http connection from network
+      iptables: chain=INPUT protocol=tcp destination_port=http jump=ACCEPT
