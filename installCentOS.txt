@@ -1,0 +1,31 @@
+install linux centos6
+
+sda1 = boot (200MB)
+
+sda2 = root (8GB)
+
+sda3 = linux lvm
+    swap  (6G)
+    /usr  (30G)
+    /home (10G)
+    /var  (5G)
+    /var/lib/mysql (all of the lest)
+
+
+
+snmptrapd
+
+netsnmp
+netsnmputils
+
+snmptt
+ snmp init.d option -On
+perl-Sys-Syslog
+net-snmp-perl
+docker-io
+libjpeg-turbo-devel
+
+pip install pillow
+pip install openpyxl
+
+RAID healthy check
