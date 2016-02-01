@@ -78,3 +78,38 @@ class ZabbixServerAPI(object):
         auth_response = self.fetch(method = 'user.login',
                                    params = {'user':self.user, 'password':self.password})
         self.auth_key = auth_response
+
+    def get_hosts_dict(self):
+        """
+        Update the value self.hosts_dict.
+        The dictionary's format {:}
+        """
+        fetched_list_of host = self.fetch(method = 'host.get')
+        for elm in host_get_list:
+            self.hosts_dict[elm['hostid']] = elm['name']
+
+    def host_attr(self,  host_id, host_attr = ''):
+        """
+        fetch host's attribute.You can specify the attribute.
+        param host_id   : host's id in zabbix server
+        param host_attr : desired attribute's name. If empty, all attributes will be returned.
+        """
+        host_get_list = self.fetch('host.get', params={'hostids':host_id})
+        if host_attr != '':
+            return host_get_list[0][host_attr]
+        else:
+            return host_get_list[0]
+
+    def items_of_host(self, host_ids):
+        """
+        get dictionary of items of specific host.
+        host_ids : string of host's id, or list of hosts' id
+        """
+        fetched_item_list = self.fetch(method = 'item.get',
+                                       params = {'hostids':str(host_ids)})
+        items_dict = {}
+        for elm in fetched_item_list:
+            items_dict[elm['key']] = {'itemid': elm['itemid'], 'latestvalue': elm['lastvalue'],
+                                      'units': elm['units']}
+        return items_dict
+       

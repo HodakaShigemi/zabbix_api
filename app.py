@@ -45,7 +45,7 @@ class ZabbixServer(object):
         to get informations vi athe API."""
     def __init__(self, address = 'http://127.0.0.1/zabbix/',
                  header = {'Content-Type':'application/json-rpc'},
-                 user = 'admin', password = 'password'):
+                 user = 'admin', password = 'zabbix'):
         self.address = address
         if address[-1] != '/':
             address += '/'
@@ -60,7 +60,7 @@ class ZabbixServer(object):
         self.recent_response
 
     def fetch(self, method, params={}):
-        """Assume method as string of zabbix api method.
+        """Assume method as string of zabbix api method,and params as dictionary of patameters.
            It returns a list which contains dictionaries of responses from zabbix api."""
         post = json.dumps({'jsonrpc':'2.0', 'method':method,
                                 'params':params, 'auth':self.auth_key, 'id':1})
@@ -87,6 +87,9 @@ class ZabbixServer(object):
             self.hosts_dict[elm['hostid']] = elm['name']
 
     def host_attr(self, host_id, host_attr=''):
+        """It returns attributes of a host.
+           The host is identified by host_id.
+           You can spedcify attribute by host_attr."""
         host_get_list = self.fetch('host.get', params={'hostids':host_id})
         if host_attr != '':
             return host_get_list[0][host_attr]
