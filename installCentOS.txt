@@ -24,8 +24,11 @@ perl-Sys-Syslog
 net-snmp-perl
 docker-io
 libjpeg-turbo-devel
+telnet
+telnet-server
 
 pip install pillow
 pip install openpyxl
+pip install pyzabbix
 
 RAID healthy check
