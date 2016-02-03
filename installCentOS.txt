@@ -32,8 +32,11 @@ net-snmp-perl
 docker-io
 libjpeg-turbo-devel
 yum-utils (yumdonloader)
+telnet
+telnet-server
 
 pip install pillow
 pip install openpyxl
+pip install pyzabbix
 
 RAID healthy check

@@ -23,13 +23,11 @@
     - name: install libjpeg-devel
       yum: name=libjpeg-turbo-devel state=installed
 
-"""
     - name: be sure python-setuptools is installed
       yum: name=python-setuptools state=installed
 
     - name: install pip
       easy_install: name=pip
-"""
 
     - name: install epel repository
       yum : name=epel-release state=installed
@@ -65,7 +63,7 @@
     - name: create data in zabbix database
       shell: /usr/bin/mysql -uroot zabbix < /usr/share/doc/zabbix-server-mysql-2.4.?/create/data.sql
       ignore_errors: yes
-"""
+
     - name: update numpy
       pip: name=numpy state=latest
 
@@ -87,7 +85,6 @@
     - name: install openpyxl. An python module for Microsoft Excel file.
       pip: name=openpyxl state=present
 
-"""
     - name: set enforce disable with SELinux
       selinux: state=disabled
 
