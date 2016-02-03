@@ -16,6 +16,18 @@
 
     - name: be sure python devel is installed
       yum: name=python-devel state=installed
+
+    - name: besure 
+
+    - name: install telnet
+      yum: name=telnet state=installed
+
+    - name: install docker
+      yum: name=docker-io state=installed
+
+    - name: install jpeg library
+      yum: name=libjpeg-turbo-devel state=installed
+
 """
     - name: be sure python-setuptools is installed
       yum: name=python-setuptools state=installed
@@ -74,5 +86,11 @@
       service: name=zabbix-server state=started enabled=yes
       notify: restart httpd
 
-#    - name: allow http connection from network
-#      iptables: chain=INPUT protocol=tcp destination_port=http jump=ACCEPT
+    - name: allow http connection from network
+      iptables: chain=INPUT protocol=tcp destination_port=http jump=ACCEPT
+
+    - name: allow ftp connection from network
+      iptables: chain=INPUT protocol=tcp destination_port=ftp jump=ACCEPT
+
+    - name: allow tftp connection from network
+      iptables: chain=INPUT protocol=udp destination_port=tftp jump=ACCEPT
