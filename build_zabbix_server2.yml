@@ -23,24 +23,16 @@
     - name: install libjpeg-devel
       yum: name=libjpeg-turbo-devel state=installed
 
-"""
-    - name: be sure python-setuptools is installed
-      yum: name=python-setuptools state=installed
-
-    - name: install pip
-      easy_install: name=pip
-"""
-
     - name: install epel repository
       yum : name=epel-release state=installed
 
     - name: install snmptt
       yum : name=snmptt state=installed
 
-     - name: install docker linux countainer package
+    - name: install docker linux countainer package
       yum: name=zabbix-server-mysql,zabbix-web-mysql,zabbix-web-japanese,zabbix-agent state=installed enablerepo=zabbix,zabbix-non-supported
 
-   - name: install zabbix repository
+    - name: install zabbix repository
       yum: name=http://repo.zabbix.com/zabbix/2.4/rhel/6/x86_64/zabbix-release-2.4-1.el6.noarch.rpm state=installed
 
     - name: install zabbix-server
@@ -65,29 +57,7 @@
     - name: create data in zabbix database
       shell: /usr/bin/mysql -uroot zabbix < /usr/share/doc/zabbix-server-mysql-2.4.?/create/data.sql
       ignore_errors: yes
-"""
-    - name: update numpy
-      pip: name=numpy state=latest
 
-    - name: install pandas python module
-      pip: name=pandas state=present
-
-    - name: besure datetime module is installed
-      pip: name=datetime state=present
-
-    - name: install bottle web framework python module
-      pip: name=bottle state=present
-
-    - name: install wtforms http-form python module
-      pip: name=wtforms state=present
-
-    - name: install pillows. An image utility module of python
-      pip: name=pillow state=present
-
-    - name: install openpyxl. An python module for Microsoft Excel file.
-      pip: name=openpyxl state=present
-
-"""
     - name: set enforce disable with SELinux
       selinux: state=disabled
 

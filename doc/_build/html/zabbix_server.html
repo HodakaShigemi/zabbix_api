@@ -1,0 +1,207 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>zabbix server how to &mdash; zabbix_api 2015.07.24 ドキュメント</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2015.07.24',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/translations.js"></script>
+    <link rel="top" title="zabbix_api 2015.07.24 ドキュメント" href="index.html" />
+    <link rel="next" title="zabbix api how to" href="zabbix_api.html" />
+    <link rel="prev" title="Zabbix Server and Zabbix API How to" href="index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="zabbix-server-how-to">
+<h1>zabbix server how to<a class="headerlink" href="#zabbix-server-how-to" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">作成担当:</th><td class="field-body">重見穂高</td>
+</tr>
+</tbody>
+</table>
+<p>zabbix serverをブラウザ経由で操作する際の基本的な使い方</p>
+<div class="section" id="id1">
+<h2>データ閲覧<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<div class="section" id="id2">
+<h3>ログイン<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<div class="line-block">
+<div class="line">ブラウザから <a class="reference external" href="http://127.0.0.1/zabbix">http://127.0.0.1/zabbix</a> にアクセスします。</div>
+<div class="line">ユーザ名にadmin 、パスワードにpasswordを入力してサインインします。</div>
+</div>
+<img alt="images/login.jpg" src="images/login.jpg" />
+<p>ログインするとダッシュボード画面が表示されます。</p>
+<img alt="images/loggedIn.jpg" src="images/loggedIn.jpg" />
+</div>
+<div class="section" id="id3">
+<h3>概要画面<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<div class="line-block">
+<div class="line"><em>監視データ</em> の <em>概要</em> をクリックすると、概要画面になります。</div>
+<div class="line">各種フィルター条件を設定すると、合致するホストの最新データが一覧できます。</div>
+<div class="line">複数ホストの複数アイテムを一覧するのに便利です。</div>
+<div class="line">また、アイテムをクリックすればグラフを描画することもできます。</div>
+<div class="line">複数のアイテムを一つのグラフにまとめて表示するには、 <em>最新データ</em> から行います。</div>
+</div>
+<img alt="images/overview.jpg" src="images/overview.jpg" />
+</div>
+<div class="section" id="id4">
+<h3>最新データ<a class="headerlink" href="#id4" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<div class="line-block">
+<div class="line"><em>監視データ</em> の <em>最新データ</em> をクリックすると、最新データ画面になります。</div>
+<div class="line">各種フィルター条件を設定すると、合致するアイテムの一覧が出てきます。</div>
+</div>
+<img alt="images/latestData.jpg" src="images/latestData.jpg" />
+<p>複数のアイテムを選択して、グラフを描画することができます。</p>
+<img alt="images/latestData_graph.jpg" src="images/latestData_graph.jpg" />
+<img alt="images/latestData_graph_made.jpg" src="images/latestData_graph_made.jpg" />
+</div>
+<div class="section" id="id5">
+<h3>トリガー<a class="headerlink" href="#id5" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<div class="line-block">
+<div class="line"><em>監視データ</em> の <em>トリガー</em> をクリックすると、トリガー画面になります。</div>
+<div class="line">各種フィルター条件を指定すると、合致するトリガーが表示されます。</div>
+<div class="line">トリガーとは、アラームのようなもので、Zabbixでトリガーの条件とアクションを設定すると、条件に合致した場合、所定のアクションをZabbixがとります。</div>
+</div>
+<img alt="images/trigger.jpg" src="images/trigger.jpg" />
+</div>
+<div class="section" id="id6">
+<h3>グラフ<a class="headerlink" href="#id6" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<div class="line-block">
+<div class="line"><em>監視データ</em> の <em>グラフ</em> をクリックするとグラフ画面になります。</div>
+<div class="line">グラフテンプレートに登録されたグラフを見ることができます。</div>
+</div>
+</div>
+<div class="section" id="id7">
+<h3>検索<a class="headerlink" href="#id7" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<div class="line-block">
+<div class="line">画面右上の検索ボックスから、ホスト、ホストグループ、テンプレートを検索することができます。</div>
+<div class="line">目的のホストのデータに素早くアクセスすることができます。</div>
+</div>
+<img alt="images/search.jpg" src="images/search.jpg" />
+</div>
+</div>
+<div class="section" id="id8">
+<h2>設定<a class="headerlink" href="#id8" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<div class="section" id="id9">
+<h3>新規ホスト登録<a class="headerlink" href="#id9" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<div class="line-block">
+<div class="line">新規監視対象ホストを登録する手順です。</div>
+<div class="line"><em>設定</em> の <em>ホスト</em> をクリックすると、ホスト設定画面になります。</div>
+<div class="line">フィルター条件を設定すると、表示を絞り込めます。</div>
+<div class="line">ステータスが <em>有効</em> となっているホストが現在監視中のホストです。 <em>有効</em> の文字をクリックすると <em>無効</em> となり監視を中止します。もう一度クリックすれば監視を再開します。</div>
+</div>
+<img alt="images/host_disable.jpg" src="images/host_disable.jpg" />
+<div class="line-block">
+<div class="line">新規にホストを登録する場合は、右上の[ホストの作成]ボタンをクリックします。</div>
+<div class="line">各種設定を入力して基本的情報を登録します。</div>
+<div class="line"><em>テンプレート</em> タブからこのホストに紐づけるテンプレートを選択します。</div>
+<div class="line">設定が完了したら、ページ下の[追加]をクリックして登録を完了します。</div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">目次</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">zabbix server how to</a><ul>
+<li><a class="reference internal" href="#id1">データ閲覧</a><ul>
+<li><a class="reference internal" href="#id2">ログイン</a></li>
+<li><a class="reference internal" href="#id3">概要画面</a></li>
+<li><a class="reference internal" href="#id4">最新データ</a></li>
+<li><a class="reference internal" href="#id5">トリガー</a></li>
+<li><a class="reference internal" href="#id6">グラフ</a></li>
+<li><a class="reference internal" href="#id7">検索</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id8">設定</a><ul>
+<li><a class="reference internal" href="#id9">新規ホスト登録</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="前の章へ">Zabbix Server and Zabbix API How to</a></li>
+      <li>Next: <a href="zabbix_api.html" title="次の章へ">zabbix api how to</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/zabbix_server.txt"
+            rel="nofollow">ソースコードを表示</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>クイック検索</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="検索" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    モジュール、クラス、または関数名を入力してください
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, HodakaShigemi.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      
+      |
+      <a href="_sources/zabbix_server.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

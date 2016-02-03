@@ -12,6 +12,13 @@ sda3 = linux lvm
     /var/lib/mysql (all of the lest)
 
 
+after install centos
+made alias of desktop
+python3.4.4 install --prefix=/opt/python3.4.4  altinstall
+ make symboliclink of pip3 and python3 to /usr/bin/
+
+
+
 
 snmptrapd
 
@@ -24,6 +31,7 @@ perl-Sys-Syslog
 net-snmp-perl
 docker-io
 libjpeg-turbo-devel
+yum-utils (yumdonloader)
 
 pip install pillow
 pip install openpyxl
