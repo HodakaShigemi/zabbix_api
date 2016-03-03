@@ -16,7 +16,9 @@ after install centos
 made alias of desktop
 python3.4.4 install --prefix=/opt/python3.4.4  altinstall
  make symboliclink of pip3 and python3 to /usr/bin/
-
+modified route configuration by making /etc/sysconfig/network-scripts/route-eth0
+add configuration for raid healthy check in zabbix-agent.conf
+ UserParameter=raid.healty, egrep '[0-9]+ blocks (.* )?\[[0-9]+/[0-9]+\] \[U+\]' /proc/mdstat | wc -l
 
 
 
