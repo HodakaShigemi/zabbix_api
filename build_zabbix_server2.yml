@@ -47,15 +47,22 @@
       mysql_user: name=zabbix password=zabbix priv=zabbix.*:ALL,GRANT state=present
 
     - name: create schema in zabbix database
-      shell: /usr/bin/mysql -uzabbix -pzabbix zabbix < /usr/share/doc/zabbix-server-mysql-2.4.7/create/schema.sql creates=/var/lib/mysql/zabbix/users.frm
+      script: createZabbixSchema.sh creates=/home/ansible/createZabbixSchemaDone
 
-    - name: create images in zabbix database
-      shell: /usr/bin/mysql -uzabbix -pzabbix zabbix < /usr/share/doc/zabbix-server-mysql-2.4.7/create/images.sql
-      ignore_errors: yes
+    - name: copy a iptables setting file to the host
+      copy: backup=yes src=iptables dest=/etc/sysconfig/iptables
 
-    - name: create data in zabbix database
-      shell: /usr/bin/mysql -uzabbix -pzabbix zabbix < /usr/share/doc/zabbix-server-mysql-2.4.7/create/data.sql
-      ignore_errors: yes
+    - name: copy a ntp.conf setting file to the host
+      copy: backup=yes src=ntp.conf dest=/etc/ntp.conf
+
+    - name: copy a php.ini setting file to the host
+      copy: backup=yes src=php.ini dest=/etc/php.ini
+
+    - name: copy a zabbix_agent setting file to the host
+      copy: backup=yes src=zabbix_agentd.conf dest=/etc/zabbix/zabbix_agentd.conf
+
+    - name: copy a zabbix_server setting file to the host
+      copy: backup=yes src=zabbix_server.conf dest=/etc/zabbix/zabbix_server.conf
 
     - name: set enforce disable with SELinux
       selinux: state=disabled
@@ -63,12 +70,3 @@
     - name: starts zabbix-server
       service: name=zabbix-server state=started enabled=yes
       notify: restart httpd
-
-    - name: allow http connection from network
-      iptables: chain=INPUT protocol=tcp destination_port=http jump=ACCEPT
-
-    - name: allow snmp response from network
-      iptables: chain=INPUT protocol=udp destination_port=161 jump=ACCEPT
-
-    - name: allow snmp trap from network
-      iptables: chain=INPUT protocol=udp destination_port=162 jump=ACCEPT

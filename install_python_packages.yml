@@ -36,5 +36,11 @@
     - name: install openpyxl. An python module for Microsoft Excel file.
       pip: executable=pip3 name=openpyxl state=present
 
+    - name: install python_docx An python module for Microsoft Word file.
+      pip: executable=pip3 name=python-docx state=present
+
+    - name: install python-pptx An python module for Microsoft Powerpint file.
+      pip: executable=pip3 name=python-pptx state=present
+
     - name: install pyzabbix. Zabbix API module.
       pip: executable=pip3 name=pyzabbix state=present

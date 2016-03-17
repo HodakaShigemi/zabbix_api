@@ -106,7 +106,7 @@ class ZabbixServer(object):
             graphs_dict[elm['name']] = elm['graphid']
         return graphs_dict
 
-    def save_graph_image(self, graph_id, time_from = '', time_till = '', width = '900', height = '300', border ='0', save_as = 'fuga.jpg'):
+    def save_graph_image(self, graph_id, time_from = '', time_till = '', width = '1900', height = '600', border ='0', save_as = 'fuga.jpg'):
         """Assume graph_id as string of graph id, time_from and time_till as string of time YYYY/MM/DD.
            It saves graph image of graph_id."""
         if time_from == '':
