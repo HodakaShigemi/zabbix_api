@@ -28,13 +28,12 @@
     - name: install jpeg library
       yum: name=libjpeg-turbo-devel state=installed
 
-"""
     - name: be sure python-setuptools is installed
       yum: name=python-setuptools state=installed
 
     - name: install pip
       easy_install: name=pip
-"""
+
     - name: install epel repository
       yum : name=epel-release state=installed
 
@@ -63,7 +62,7 @@
     - name: create data in zabbix database
       shell: /usr/bin/mysql -uroot zabbix < /usr/share/doc/zabbix-server-mysql-2.4.?/create/data.sql
       ignore_errors: yes
-"""
+
     - name: update numpy
       pip: name=numpy state=latest
 
@@ -76,9 +75,9 @@
     - name: install bottle web framework python module
       pip: name=bottle state=present
 
-    - name: install wtforms http-form python module
+   - name: install wtforms http-form python module
       pip: name=wtforms state=present
-"""
+
     - name: set enforce disable with SELinux
       selinux: state=disabled
 
