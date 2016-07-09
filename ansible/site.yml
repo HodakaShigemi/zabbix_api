@@ -1,0 +1,6 @@
+---
+
+- include: webserver
+- include: dbserver
+- include: zabbix-server
+- include: zabbix-agent

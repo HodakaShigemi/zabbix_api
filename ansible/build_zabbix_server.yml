@@ -1,6 +1,5 @@
 - hosts: zabbix-server
   vars:
-    ansible_ssh_user: ansible
   handlers:
     - name: restart httpd
       service: name=httpd state=restarted enabled=yes
@@ -17,7 +16,11 @@
     - name: be sure python devel is installed
       yum: name=python-devel state=installed
 
-    - name: besure 
+    - name: install docker-io
+      yum: name=docker-io state=installed
+
+    - name: install libjpeg-devel
+      yum: name=libjpeg-turbo-devel state=installed
 
     - name: install telnet
       yum: name=telnet state=installed
@@ -37,7 +40,13 @@
     - name: install epel repository
       yum : name=epel-release state=installed
 
-    - name: install zabbix repository
+    - name: install snmptt
+      yum : name=snmptt state=installed
+
+     - name: install docker linux countainer package
+      yum: name=zabbix-server-mysql,zabbix-web-mysql,zabbix-web-japanese,zabbix-agent state=installed enablerepo=zabbix,zabbix-non-supported disablerepo=epel
+
+   - name: install zabbix repository
       yum: name=http://repo.zabbix.com/zabbix/2.4/rhel/6/x86_64/zabbix-release-2.4-1.el6.noarch.rpm state=installed
 
     - name: install zabbix-server
@@ -78,6 +87,12 @@
    - name: install wtforms http-form python module
       pip: name=wtforms state=present
 
+    - name: install pillows. An image utility module of python
+      pip: name=pillow state=present
+
+    - name: install openpyxl. An python module for Microsoft Excel file.
+      pip: name=openpyxl state=present
+
     - name: set enforce disable with SELinux
       selinux: state=disabled
 
@@ -87,6 +102,12 @@
 
     - name: allow http connection from network
       iptables: chain=INPUT protocol=tcp destination_port=http jump=ACCEPT
+
+    - name: allow snmp response from network
+      iptables: chan=INPUT protocol=udp destination_port=161 jump=ACCEPT
+
+    - name: allow snmp trap from network
+      iptables: chan=INPUT protocol=udp destination_port=162 jump=ACCEPT
 
     - name: allow ftp connection from network
       iptables: chain=INPUT protocol=tcp destination_port=ftp jump=ACCEPT
