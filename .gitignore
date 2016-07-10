@@ -1,0 +1,12 @@
+# ansible playbooks retry file
+*retry
+
+#sphinx documents
+doc/*
+
+#local virtual machine inventory file
+ansible/vms
+
+#vars files which depends on environment
+ansible/group_vars
+ansible/host_vars
