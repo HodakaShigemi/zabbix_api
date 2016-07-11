@@ -7,7 +7,7 @@
 
 <form method="post">
 <select id = "host_id" name="host_id" onChange="this.form.submit()">
-<% for host in hosts:
+<% for host in sorted(hosts):
     if host[0] == host_id: %>
         <option value="{{ host[0] }}" selected>{{ host[1] }}</option>
         % else:

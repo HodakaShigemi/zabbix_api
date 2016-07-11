@@ -185,11 +185,11 @@ class ZabbixServer(object):
         item_info = self.item_attr(item_id)
         host_info = self.host_attr(item_info['hostid'])
         info = {}
-        info['host_name'] = host_info['name']
+        info['host_ip'] = host_info['host']
         info['description'] = host_info['description']
         info['item_name'] = item_info['name']
         info['unit'] = item_info['units']
-        host_name = host_info['name']
+        host_name = host_info['host']
         host_name = host_name.replace('/','')
         key = item_info['key_']
         info_pandas = pandas.DataFrame([info])
@@ -242,14 +242,14 @@ def save():
         print bottle.request.forms.decode()
         # form.iter_choices(), 
         hosts = show_hosts()
-        host_id = bottle.request.forms.host_id
+        host_id = bottle.request.forms.host_id.decode()
         form.host_id.choices = hosts
         form.items_id.choices = show_items(host_id)
         return bottle.template('save.tpl', form = form, hosts = hosts, host_id = host_id)
     elif bottle.request.forms.items_id:
         hosts = show_hosts()
-        host_id = bottle.request.forms.host_id
-        item_id = bottle.request.forms.items_id
+        host_id = bottle.request.forms.host_id.decode()
+        item_id = bottle.request.forms.items_id.decode()
         print item_id
         from_time = bottle.request.forms.from_time
         to_time = bottle.request.forms.to_time

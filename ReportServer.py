@@ -126,5 +126,6 @@ class GenerateReport(object):
 
 class Server(object):
     """
-    
+    Webサーバを提供するクラス
+    リクエストを受け取って、レポートを作成しダウンロードできる  
     """
