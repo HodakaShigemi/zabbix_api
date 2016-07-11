@@ -1,0 +1,4 @@
+---
+- hosts: zabbix-agents
+  roles:
+    - zabbix-agent

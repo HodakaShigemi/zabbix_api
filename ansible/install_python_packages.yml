@@ -1,0 +1,46 @@
+- hosts: zabbix-server
+  vars:
+  become: yes
+  become_method: su
+  tasks:
+    - name: be sure gcc-c++ is installed
+      yum: name=gcc-c++ state=installed
+
+    - name: be sure python devel is installed
+      yum: name=python-devel state=installed
+
+    - name: install libjpeg-devel
+      yum: name=libjpeg-turbo-devel state=installed
+
+    - name: update pip3
+      pip: executable=pip3 name=pip state=latest
+
+    - name: update numpy
+      pip: executable=pip3 name=numpy state=latest
+
+    - name: install pandas python module
+      pip: executable=pip3 name=pandas state=present
+
+    - name: besure datetime module is installed
+      pip: executable=pip3 name=datetime state=present
+
+    - name: install bottle web framework python module
+      pip: executable=pip3 name=bottle state=present
+
+    - name: install wtforms http-form python module
+      pip: executable=pip3 name=wtforms state=present
+
+    - name: install pillows. An image utility module of python
+      pip: executable=pip3 name=pillow state=present
+
+    - name: install openpyxl. An python module for Microsoft Excel file.
+      pip: executable=pip3 name=openpyxl state=present
+
+    - name: install python_docx An python module for Microsoft Word file.
+      pip: executable=pip3 name=python-docx state=present
+
+    - name: install python-pptx An python module for Microsoft Powerpint file.
+      pip: executable=pip3 name=python-pptx state=present
+
+    - name: install pyzabbix. Zabbix API module.
+      pip: executable=pip3 name=pyzabbix state=present
