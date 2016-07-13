@@ -10,13 +10,14 @@ class ZabbixReport(object):
     ZabbixAPIを使用して各種のデータを収集整形する
     """
 
-    def __init__(self, server = "http://127.0.0.1/zabbix"):
+    def __init__(self, server = "http://127.0.0.1/zabbix", user = 'admin', password ='zabbix'):
         """
         初期設定を行う
         デフォルトでサーバのURLはローカルのzabbixサーバになっている
         """
         self.server = server
         self.zapi = ZabbixAPI(server = self.server)
+        self.zapi.login(user = user, password = password)
         self.hosts_dictionary = {}
 
     def update_hosts_dictionary(self):
@@ -40,20 +41,21 @@ class ZabbixReport(object):
             items_dictionary_of_host[item["key_"]] = item["itemid"]
         return items_dictionary_of_host
 
-    def attribute_of_host(self, hostid):
-        return self.zapi.host.get(hostids = hostid)[0]
-
-    def string_to_Unix_time(self, time_string):
+    def to_Unix_time(self, time_val):
         """
-        文字列表現の時間をUNIX時間に変換する
+        渡された引数をUNIX時間(整数値)に変換して返す
         """
         now = datetime.now()
-        if time_string == 'last_month':
+        if type(time_val) == (int or float):
+            return int(time_val)
+        if type(time_val) == datetime:
+            time = time_val
+        elif time_val == 'last_month':
             time = datetime(now.year, now.month -1, 1)
-        elif time_string == 'this_month':
+        elif time_val == 'this_month':
             time = datetime(now.year, now.month, 1)
         else:
-            time = dateutil.parser.parse(time_string)
+            time = dateutil.parser.parse(time_val)
         Unix_time = int(time.timestamp())
         return Unix_time
 
@@ -61,8 +63,8 @@ class ZabbixReport(object):
         return datetime.fromtimestamp(int(Unix_time)).isoformat(' ')
 
     def history_of_item(self, itemid, time_from, time_till):
-        time_from = self.string_to_Unix_time(time_from)
-        time_till = self.string_to_Unix_time(time_till)
+        time_from = self.to_Unix_time(time_from)
+        time_till = self.to_Unix_time(time_till)
         value_type = self.zapi.item.get(itemids =itemid, output=['value_type'])[0]['value_type']
         return self.zapi.history.get(itemids =itemid, history=value_type, time_from = time_from, time_till = time_till)
 
@@ -77,12 +79,12 @@ class ZabbixReport(object):
         item_info = item_info + str(item_attr)
         host_info = 'host_info -->'
         host_info = host_info + str(host_info)
-        history_of_item = self.history_of_item(itemid = itemid, time_from = time_from, time_till = time_till)
-        for row in history_of_item:
-            row['clock'] = self.Unix_time_to_string(row['clock'])
         csv_file = open(name_saving_file, mode ='w')
         csv_file.write(host_info + '\n' + item_info)
         csv_file.close()
+        history_of_item = self.history_of_item(itemid = itemid, time_from = time_from, time_till = time_till)
+        for row in history_of_item:
+            row['clock'] = self.Unix_time_to_string(row['clock'])
         history_dataframe = pandas.DataFrame(history_of_item)
         history_dataframe['clock', 'value'].to_csv(name_saving_file, mode = 'a')
         return name_saving_file
@@ -94,8 +96,9 @@ class ZabbixReport(object):
         オプションで、グラフの縦・横のサイズ、画像ファイルの名前を指定できる。
         返す値は保存したグラフ画像のパス。
         """
-        period = self.string_to_Unix_time(time_till) - self.string_to_Unix_time(time_from)
-        time_from_as_datetime = dateutil.parser.parse(time_from)
+        period = self.to_Unix_time(time_till) - self.to_Unix_time(time_from)
+        time_from = self.to_Unix_time(time_from)
+        time_from_as_datetime = datetime.fromtimestamp(time_from)
         parameters = {'graphid':graphid, 'width':width, 'height':height, 'stime':time_from_as_datetime.strftime("%Y%m%d%H%M%S"), 'period':period }
         response = requests.get(self.server + "/chart2.php", params = parameters, cookies = {'zbx_sessionid':self.zapi.auth},)
         file = open(save_as, 'wb')
@@ -115,37 +118,18 @@ class ZabbixReport(object):
             saved_graph_pathes.appned(self.save_graph_images(graphid = graph_id, time_from = time_from, time_till = time_till, save_as = graph_name))
         return saved_graph_pathes
 
-    def make_report_for_kk(self, kk_name, time_from = 'last_month', time_till = 'this_month'):
-        """
-        特定の加入機関のレポートを作成する。
-        kk_nameが加入機関の名前、レポートにする期間についても指定可能（デフォルトで先月の一ヶ月間）
-        """
-        time_from = self.string_to_Unix_time(time_from)
-        time_till = self.string_to_Unix_time(time_till)
-        hosts_of_kk = {}
-        saved_graph_names = []
-        for host in self.zapi.host.get(output=['host', 'name'], search = {'name':kk_name}):
-            hosts_of_kk[host['name']] = host['hostid']
-
-        for host_name, host_id in hosts_of_kk.items():
-            graph_images = []
-            if 'kk' in host_name:
-                graph_images.extend(self.save_graph_images_with(hostid = host_id, search_word = 'traffic', time_from = time_from, time_till = time_till))
-            graph_images.extend(self.save_graph_images_with(hostid = host_id, search_word = 'optpower', time_from = time_from, time_till = time_till)) 
-        graph_images.reverse()
-        while graph_images:
-            paste_to_paper(graph_images.pop()) #レポートのフォーマットに画像を貼り付けていく処理
-        return report_name
-
     def make_report_from_screen(self, screenid, time_from = 'last_month',  time_till = 'this_month', template='', save_as = 'ReportFromScreen.docx'):
         """
         make report in Word file format from screen.
         """
         if template:
             doc = Document(template)
+            for paragraph in doc.paragraphs:
+                if paragraph.text == '{tile}':
+                    paragraph.text = self.zapi.screen.get(screenids = screenid, output = ['name'])[0]['name']
         else:
             doc = Document()
-        doc.add_heading(self.zapi.screen.get(screenids = screenid, output = ['name'])[0]['name'], 0)
+            doc.add_heading(self.zapi.screen.get(screenids = screenid, output = ['name'])[0]['name'], 0)
 
         tmp_dir = TemporaryDirectory(prefix = 'screen' + screenid)
 
@@ -172,9 +156,3 @@ class ZabbixReport(object):
         tmp_dir.cleanup()
         del tmp_dir
         return save_as
-
-class Server(object):
-    """
-    Webサーバを提供するクラス
-    リクエストを受け取って、レポートを作成しダウンロードできる  
-    """
