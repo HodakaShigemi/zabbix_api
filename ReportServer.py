@@ -1,9 +1,11 @@
 from pyzabbix import ZabbixAPI
 from datetime import datetime
-import re, time, pandas
+from tempfile import TemporaryDirectory
+from docx import Document
+import re, time, pandas, requests
 import dateutil.parser
 
-class GenerateReport(object):
+class ZabbixReport(object):
     """
     ZabbixAPIを使用して各種のデータを収集整形する
     """
@@ -61,30 +63,41 @@ class GenerateReport(object):
     def history_of_item(self, itemid, time_from, time_till):
         time_from = self.string_to_Unix_time(time_from)
         time_till = self.string_to_Unix_time(time_till)
-        return self.zapi.history.get(itemids =itemid, time_from = time_from, time_till = time_till)
+        value_type = self.zapi.item.get(itemids =itemid, output=['value_type'])[0]['value_type']
+        return self.zapi.history.get(itemids =itemid, history=value_type, time_from = time_from, time_till = time_till)
 
     def save_history_as_csv(self, itemid, time_from, time_till, name_saving_file = "hoge.csv"):
         """
         特定のアイテムのヒストリーをcsvファイルに保存する。
         ヒストリの時間はUNIXタイムスタンプからISOフォーマットに変換する。
         """
+        item_attr = self.zapi.item.get(itemid = itemid, output=['key_', 'name', 'hostid'])[0]
+        host_attr = self.zapi.host.get(hostid = item_attr['hostid'], output=['name'])[0]
+        item_info = 'item_info -->'
+        item_info = item_info + str(item_attr)
+        host_info = 'host_info -->'
+        host_info = host_info + str(host_info)
         history_of_item = self.history_of_item(itemid = itemid, time_from = time_from, time_till = time_till)
         for row in history_of_item:
-            row['clock'] = Unix_time_to_string(row['clock'])
+            row['clock'] = self.Unix_time_to_string(row['clock'])
+        csv_file = open(name_saving_file, mode ='w')
+        csv_file.write(host_info + '\n' + item_info)
+        csv_file.close()
         history_dataframe = pandas.DataFrame(history_of_item)
         history_dataframe['clock', 'value'].to_csv(name_saving_file, mode = 'a')
+        return name_saving_file
 
     def save_graph_image(self, graphid, time_from, time_till, width=1600, height=900, save_as='graph.png'):
         """
         グラフの画像を保存する。
         グラフのID、グラフにする期間の始まりと終わりを必要とする。
         オプションで、グラフの縦・横のサイズ、画像ファイルの名前を指定できる。
-        返す値は保存したグラフ画像の相対パス。
+        返す値は保存したグラフ画像のパス。
         """
         period = self.string_to_Unix_time(time_till) - self.string_to_Unix_time(time_from)
         time_from_as_datetime = dateutil.parser.parse(time_from)
         parameters = {'graphid':graphid, 'width':width, 'height':height, 'stime':time_from_as_datetime.strftime("%Y%m%d%H%M%S"), 'period':period }
-        response = request.get(self.server + "/chart2.php", params = parameters, cookies = {'zbx_sessionid':self.zapi.auth},)
+        response = requests.get(self.server + "/chart2.php", params = parameters, cookies = {'zbx_sessionid':self.zapi.auth},)
         file = open(save_as, 'wb')
         file.write(response.content)
         file.close()
@@ -99,16 +112,16 @@ class GenerateReport(object):
         for graph in self.zapi.graph.get(hostids = [host_id], search = {'name':[search_word]}, output = ['name']):
             graph_name = graph['name']
             graph_id = graph['graphid']
-            saved_graph_pathes.appned(self.save_graph_images(graphid = graph_id, time_from = time_from, time_till = time_till, saveas = graph_name))
+            saved_graph_pathes.appned(self.save_graph_images(graphid = graph_id, time_from = time_from, time_till = time_till, save_as = graph_name))
         return saved_graph_pathes
 
-    def make_report(self, kk_name, time_from = 'last_month', time_till = 'this_month'):
+    def make_report_for_kk(self, kk_name, time_from = 'last_month', time_till = 'this_month'):
         """
         特定の加入機関のレポートを作成する。
         kk_nameが加入機関の名前、レポートにする期間についても指定可能（デフォルトで先月の一ヶ月間）
         """
-        time_from = string_to_Unix_time(time_from)
-        time_till = string_to_Unix_time(time_till)
+        time_from = self.string_to_Unix_time(time_from)
+        time_till = self.string_to_Unix_time(time_till)
         hosts_of_kk = {}
         saved_graph_names = []
         for host in self.zapi.host.get(output=['host', 'name'], search = {'name':kk_name}):
@@ -123,6 +136,42 @@ class GenerateReport(object):
         while graph_images:
             paste_to_paper(graph_images.pop()) #レポートのフォーマットに画像を貼り付けていく処理
         return report_name
+
+    def make_report_from_screen(self, screenid, time_from = 'last_month',  time_till = 'this_month', template='', save_as = 'ReportFromScreen.docx'):
+        """
+        make report in Word file format from screen.
+        """
+        if template:
+            doc = Document(template)
+        else:
+            doc = Document()
+        doc.add_heading(self.zapi.screen.get(screenids = screenid, output = ['name'])[0]['name'], 0)
+
+        tmp_dir = TemporaryDirectory(prefix = 'screen' + screenid)
+
+        screenitems = pandas.DataFrame(
+            self.zapi.screenitem.get(
+                screenids = screenid,
+                output = ['x','y', 'resourceid', 'height', 'width', 'resourcetype']
+            )
+        )
+        for index in screenitems.sort(columns=['y', 'x']).index:
+            screenitem = screenitems.loc[index]
+            if screenitem['resourcetype'] == '0':
+                saved_graph = self.save_graph_image(
+                    graphid = screenitem['resourceid'],
+                    width = screenitem['width'],
+                    height = screenitem['height'],
+                    time_from = time_from,
+                    time_till = time_till,
+                    save_as = tmp_dir.name + '/' + screenitem['resourcetype'] + screenitem['resourceid'] + '.png'
+                )
+                doc.add_picture(saved_graph,
+                                width = doc.sections[0].page_width - doc.sections[0].right_margin - doc.sections[0].left_margin)
+        doc.save(save_as)
+        tmp_dir.cleanup()
+        del tmp_dir
+        return save_as
 
 class Server(object):
     """
