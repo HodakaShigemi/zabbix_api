@@ -118,15 +118,20 @@ class ZabbixReport(object):
             saved_graph_pathes.appned(self.save_graph_images(graphid = graph_id, time_from = time_from, time_till = time_till, save_as = graph_name))
         return saved_graph_pathes
 
-    def make_report_from_screen(self, screenid, time_from = 'last_month',  time_till = 'this_month', template='', save_as = 'ReportFromScreen.docx'):
+    def save_report_from_screen(self, screenid, time_from = 'last_month',  time_till = 'this_month', template = None, save_as = 'ReportFromScreen.docx'):
         """
-        make report in Word file format from screen.
+        Zabbixのスクリーン画面に登録されているグラフをワードファイルに張り付けて保存する。
+        現在グラフのみをワードに張り付けている。
+        ワードファイル内のグラフ画像は、すべて縦に並べられる。
+        引数としては、スクリーンのID、グラフにする時間の始めと終わり、テンプレートにするファイル、
+        保存するワードファイルの名前。を引数に取ることができる。
         """
         if template:
             doc = Document(template)
             for paragraph in doc.paragraphs:
-                if paragraph.text == '{tile}':
-                    paragraph.text = self.zapi.screen.get(screenids = screenid, output = ['name'])[0]['name']
+                for run in paragraph.runs:
+                    if '{title}' in run.text:
+                        run.text = run.text.format(title = self.zapi.screen.get(screenids = screenid, output = ['name'])[0]['name'])
         else:
             doc = Document()
             doc.add_heading(self.zapi.screen.get(screenids = screenid, output = ['name'])[0]['name'], 0)
@@ -156,3 +161,27 @@ class ZabbixReport(object):
         tmp_dir.cleanup()
         del tmp_dir
         return save_as
+
+    def save_reports_from_screens(self, save_dir, time_from = 'last_month', time_till = 'this_month', template = None):
+        """
+        ZABBIXに登録されているスクリーンすべてからレポートを作成する
+        保存するディレクトリのパスを引数に取る
+        """
+        regexp_dc = re.compile(r'[0-9]{2}(.).+DC')
+        if save_dir[-1] != '/':
+            save_dir = save_dir + '/'
+        screens = self.zapi.screen.get(output=['name'])
+        for screen in screens:
+            if '共同調達' in screen['name']:
+                dc_name = regexp_dc.search(screen['name']).group().replace('DC', '')
+                file_name = dc_name + '.docx'
+            else:
+                file_name = screen['name'].replace(' ', '').replace('　', '') + '.docx'
+            self.save_report_from_screen(
+                screenid = screen['screenid'],
+                time_from = time_from,
+                time_till = time_till,
+                template = template,
+                save_as = save_dir + file_name
+            )
+

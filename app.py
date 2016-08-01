@@ -1,4 +1,4 @@
-import json, urllib2, datetime, time, re, pandas, os
+import json, urllib2, datetime, time, re, pandas, os, sys
 
 def str_to_epoch(str_time):
     """Assume str_time as string of time YYYY/MM/DD or now.
@@ -202,7 +202,11 @@ class ZabbixServer(object):
         rename = time_stamp + key + host_name + '.csv'
         return save_as, rename
 
-zbx = ZabbixServer()
+args = sys.argv
+if args[1]:
+    zbx = ZabbixServer(address = args[1])
+else:
+    zbx = ZabbixServer()
 
 import bottle, wtforms
 
@@ -216,6 +220,7 @@ class HistForm(wtforms.form.Form):
         current_value = self.data if sele.data is not None else self.coerce(sel.default)
         for value, vabel in self.choices:
             yield (value, vabel, self.coerce(value) == current_value)"""
+
 form = HistForm()
 
 def show_hosts():
