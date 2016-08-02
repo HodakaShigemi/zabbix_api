@@ -1,27 +1,42 @@
 <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scal=1">
 
-    <title>Zabbix Item History</title>
+    <title>{!title}</title>
 
     <style type="text/css">
-
-        body {
-            padding-top: 50px;
+        div.container {
+            width: 100%;
+            border: 1px solid grey;
         }
 
-        .navbar-fixed-top {
-            border: 0;
+        header, footer {
+            padding: 1em;
+            color: #2F2F2F;
+            background-color: #EBEFF2;
+            clear: left;
+            text-align: center;
         }
 
-        .main {
-            padding: 15px;
+        nav {
+            float: left;
+            max-width: 160px;
+            margin: 0;
+            padding: 1em;
         }
 
-        .main .page-header {
-            margin-top: 0;
+        nav ul a {
+            text-decoration: none;
         }
 
+        nav ul a:hover {
+            color: red;
+        }
+
+        article {
+            margin-left: 170px;
+            border-left: 1px solid grey;
+            padding: 1em;
+            overflow: hidden;
+        }
     </style>
 </head>

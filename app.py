@@ -203,7 +203,7 @@ class ZabbixServer(object):
         return save_as, rename
 
 args = sys.argv
-if args[1]:
+if bool(args[1]):
     zbx = ZabbixServer(address = args[1])
 else:
     zbx = ZabbixServer()

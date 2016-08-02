@@ -5,7 +5,7 @@ from docx import Document
 import re, time, pandas, requests
 import dateutil.parser
 
-class ZabbixReport(object):
+class ZabbixReportAPI(object):
     """
     ZabbixAPIを使用して各種のデータを収集整形する
     """

@@ -1,15 +1,40 @@
+<html>
+
 % include('header.tpl')
 
-<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-    <h1 class="page-deader">Zabbix Item History</h1>
+<body>
+<div class="container">
+    <header>
+        <h1 class="page-deader">{{title}}</h1>
+    </header>
 
-    <div class="form-group">
+    <nav>
+        <ul>
+        % if request.path == '/top':
+            <li class="active"><a href="./top">Top画面</a></li>
+        % else:
+            <li><a href="./top">Top画面</a></li>
+        %end
 
-        % # hosts list
-        {{ !host_id = host_choice() }}
+        % if request.path == '/history':
+            <li class="active"><a href="./history">取得値の一覧取得</a></li>
+        % else:
+            <li><a href="./history">取得値の一覧取得</a></li>
+        %end
 
+        % if request.path == '/report':
+            <li class="active"><a href="./report">受光レベルレポート取得</a><li>
+        % else:
+            <li><a href="./report">受光レベルレポート取得</a><li>
+        %end
+        </ul>
+    </nav>
 
-    </div>
+    <article>
+
+        {{!base}}
+
+    </article>
 </div>
 </body>
 </html>
