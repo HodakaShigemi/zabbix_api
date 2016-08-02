@@ -184,15 +184,3 @@ class ZabbixReportAPI(object):
                 template = template,
                 save_as = save_dir + file_name
             )
-
-class ItemHistoryForm(Form):
-    item = SelectField(description='Item', coerce = str)
-    time_from = StringField(description='Time from')
-    time_till = StringField(description='Time till')
-    submit = SubmitField('Download CSV')
-
-class ReportForm(Form):
-    screen = BooleanField(description='Screens', render_kw={'type':'checkbox'})
-    submit = SubmitField('Download ZIP')
-
-
