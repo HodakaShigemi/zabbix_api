@@ -19,6 +19,7 @@ class ZabbixReportAPI(object):
         self.zapi = ZabbixAPI(server = self.server)
         self.zapi.login(user = user, password = password)
         self.hosts_dictionary = {}
+        self.update_hosts_dictionary()
 
     def update_hosts_dictionary(self):
         """
