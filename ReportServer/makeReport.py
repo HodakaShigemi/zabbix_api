@@ -18,16 +18,26 @@ class ZabbixReportAPI(object):
         self.server = server
         self.zapi = ZabbixAPI(server = self.server)
         self.zapi.login(user = user, password = password)
+        self.screens_dictionary = {}
+        self.update_screens_dictionary()
         self.hosts_dictionary = {}
         self.update_hosts_dictionary()
+
+    def update_screens_dictionary(self):
+        """
+        スクリーンの辞書データを更新する
+        辞書は self.screens_dictionary = {"スクリーン名":"スクリーンID", ...}となっている
+        """
+        for screen in self.zapi.screen.get(output=["name"]):
+            self.screens_dictionary[screen["name"]] = screen["screenid"]
 
     def update_hosts_dictionary(self):
         """
         ホストの辞書データを更新する
-        辞書は self.hosts_dictionary = {"ホスト":"ホストのID", ...}となっている
+        辞書は self.hosts_dictionary = {"表示名":"ホストのID", ...}となっている
         """
-        for host in self.zapi.host.get(output=["host"]):
-            self.hosts_dictionary[host["host"]] = host["hostid"]
+        for host in self.zapi.host.get(output=["name"]):
+            self.hosts_dictionary[host["name"]] = host["hostid"]
 
     def items_dictionary_of_host(self, hostid):
         """
@@ -69,26 +79,26 @@ class ZabbixReportAPI(object):
         value_type = self.zapi.item.get(itemids =itemid, output=['value_type'])[0]['value_type']
         return self.zapi.history.get(itemids =itemid, history=value_type, time_from = time_from, time_till = time_till)
 
-    def save_history_as_csv(self, itemid, time_from, time_till, name_saving_file = "hoge.csv"):
+    def save_history_as_csv(self, itemid, time_from, time_till, save_as = "hoge.csv"):
         """
         特定のアイテムのヒストリーをcsvファイルに保存する。
         ヒストリの時間はUNIXタイムスタンプからISOフォーマットに変換する。
         """
         item_attr = self.zapi.item.get(itemid = itemid, output=['key_', 'name', 'hostid'])[0]
         host_attr = self.zapi.host.get(hostid = item_attr['hostid'], output=['name'])[0]
-        item_info = 'item_info -->'
+        item_info = 'item_info -->,'
         item_info = item_info + str(item_attr)
-        host_info = 'host_info -->'
-        host_info = host_info + str(host_info)
-        csv_file = open(name_saving_file, mode ='w')
-        csv_file.write(host_info + '\n' + item_info)
+        host_info = 'host_info -->,'
+        host_info = host_info + str(host_attr)
+        csv_file = open(save_as, mode ='w')
+        csv_file.write(host_info + '\n' + item_info + '\n')
         csv_file.close()
         history_of_item = self.history_of_item(itemid = itemid, time_from = time_from, time_till = time_till)
         for row in history_of_item:
             row['clock'] = self.Unix_time_to_string(row['clock'])
         history_dataframe = pandas.DataFrame(history_of_item)
-        history_dataframe['clock', 'value'].to_csv(name_saving_file, mode = 'a')
-        return name_saving_file
+        history_dataframe[['clock', 'value']].to_csv(save_as, mode = 'a')
+        return save_as
 
     def save_graph_image(self, graphid, time_from, time_till, width=1600, height=900, save_as='graph.png'):
         """
@@ -145,7 +155,7 @@ class ZabbixReportAPI(object):
                 output = ['x','y', 'resourceid', 'height', 'width', 'resourcetype']
             )
         )
-        for index in screenitems.sort(columns=['y', 'x']).index:
+        for index in screenitems.astype(int).sort(columns=['y', 'x']).index:
             screenitem = screenitems.loc[index]
             if screenitem['resourcetype'] == '0':
                 saved_graph = self.save_graph_image(

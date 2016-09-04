@@ -1,0 +1,10 @@
+---
+- name: confirm installed mysql staff
+  yum: name={{ item }} state=present
+  with_items:
+    - mysql-server
+
+- name: configure iptables(firewall) on tcp
+  iptables: chain=INPUT ctstate=NEW protocol=tcp match=tcp destination_port={{ item }} jump=ACCEPT
+  with_items:
+    - 3306

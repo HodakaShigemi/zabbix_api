@@ -1,0 +1,46 @@
+- name: be sure Python3.4.3 is not installed
+  command: ls -l /opt/bin/python3.4
+  ignore_errors: True
+  register: ck_python3
+
+- name: be sure dependencies are installed
+  yum: name={{ item }} state=installed
+  with_items:
+    - gcc-c++
+    - python-devel 
+    - libjpeg-turbo-devel
+    - libxml2
+    - libxslt
+
+- name: set python3.4.3 source file to the remote machine
+  unarchive: src=Python3.4.3.tar.xz dest=/root/Python3.4.3 copy=yes
+  when: ck_python3|failed
+
+- name: configure, make, make alt install python3.4.3
+  command: {{ item }} chdir=/root/Python3.4.3 creates=/opt/bin/python3.4
+  with_items:
+    - ./configure --prefix=/opt
+    - make
+    - make altinstall
+
+- name: install python packages on which report server depends
+  pip: executable=pip3 name={{ item }} state=latest
+  with_items:
+    - pip
+    - ipython
+    - numpy
+    - pandas
+    - datetime
+    - python-dateutil
+    - bottle
+    - wtforms
+    - pillow
+    - openpyxl
+    - python-docx
+    - python-pptx
+    - pyzabbix
+
+- name: configure iptables(firewall)
+  iptables: chain=INPUT ctstate=NEW protocol=tcp match=tcp destination_port={{ item }} jump=ACCEPT
+  with_items:
+    - 8080
