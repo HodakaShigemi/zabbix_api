@@ -1,6 +1,6 @@
 % rebase('base.tpl')
 
-ホスト選択<br>
+ホストを選択すると、そのホストについて収集しているアイテムが表示されます<br>
 <form method="post">
 <select id ="host_name" name="host_name" onChange="this.form.submit()">
 % for host_name in host_names:
