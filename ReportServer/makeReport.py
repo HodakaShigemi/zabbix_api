@@ -1,3 +1,6 @@
+#!/usr/bin/python3
+# -*- coding: utf-8
+
 from pyzabbix import ZabbixAPI
 from datetime import datetime
 from tempfile import TemporaryDirectory

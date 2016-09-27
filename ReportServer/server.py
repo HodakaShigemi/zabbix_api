@@ -1,3 +1,6 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
 from wtforms.form import Form
 from wtforms.fields import SelectField, SelectMultipleField, StringField, SubmitField
 from wtforms import widgets
