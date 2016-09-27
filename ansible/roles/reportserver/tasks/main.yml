@@ -1,5 +1,5 @@
 - name: be sure Python3.4.3 is not installed
-  command: ls -l /opt/bin/python3.4
+  command: ls -l /opt/bin/python3.4 creates=/opt/bin/python3.4
   ignore_errors: True
   register: ck_python3
 
@@ -26,7 +26,7 @@
 - command: make altinstall chdir=/root/Python-3.4.3 creates=/opt/bin/python3.4
 
 - name: ensure pip is installed
-  command: /opt/bin/python3.4 -m ensurepip
+  command: /opt/bin/python3.4 -m ensurepip creates=/opt/bin/pip3.4
 
 - name: make symboliclink of python3 and pip3 command in /usr/bin
   file: path=/usr/bin/{{ item }} state=link src=/opt/bin/{{ item }}.4
