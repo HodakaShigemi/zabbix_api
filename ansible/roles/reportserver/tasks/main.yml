@@ -14,7 +14,7 @@
     - git
 
 - name: set python3.4.3 source file to the remote machine
-  unarchive: src=https://www.python.org/ftp/python/3.4.3/Python-3.4.3.tar.xz dest=/root copy=yes
+  unarchive: src=Python-3.4.3.tar.xz dest=/root copy=yes
   when: ck_python3|failed
 
 - name: configure, make, make alt install python3.4.3
