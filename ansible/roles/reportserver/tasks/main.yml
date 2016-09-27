@@ -6,6 +6,8 @@
 - name: be sure dependencies are installed
   yum: name={{ item }} state=installed
   with_items:
+    - epel-release
+    - ansible
     - gcc-c++
     - python-devel 
     - openssl-devel
@@ -35,21 +37,23 @@
     - pip3
 
 - name: install python packages on which report server depends
-  pip: executable=pip3 name={{ item }} state=latest
+  pip: executable=pip3 name={{ item }} state=present
   with_items:
-    - pip
     - ipython
-    - numpy
-    - pandas
+    - numpy==1.9.2
+    - pandas==0.16.2
     - datetime
-    - python-dateutil
+    - python-dateutil==2.4.2
     - bottle
-    - wtforms
+    - wtforms==2.0.2
     - pillow
     - openpyxl
-    - python-docx
+    - python-docx==0.8.5
     - python-pptx
-    - pyzabbix
+    - pyzabbix==0.7.4
+
+- name: make symboliclink of ipython3 command in /usr/bin
+  file: path=/usr/bin/ipython3 state=link src=/opt/bin/ipython3
 
 - name: git clone report server python codes
   command: git clone https://github.com/HodakaShigemi/zabbix_api chdir=/opt creates=/opt/zabbix_api
