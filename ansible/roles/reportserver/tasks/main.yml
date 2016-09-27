@@ -18,11 +18,11 @@
   when: ck_python3|failed
 
 - name: configure, make, make alt install python3.4.3
-  command: ./configure --prefix=/opt chdir=/root/Python3.4.3 creates=/opt/bin/python3.4
+  command: ./configure --prefix=/opt chdir=/root/Python-3.4.3 creates=/opt/bin/python3.4
 
-- command: make chdir=/root/Python3.4.3 creates=/opt/bin/python3.4
+- command: make chdir=/root/Python-3.4.3 creates=/opt/bin/python3.4
 
-- command: make altinstall chdir=/root/Python3.4.3 creates=/opt/bin/python3.4
+- command: make altinstall chdir=/root/Python-3.4.3 creates=/opt/bin/python3.4
 
 - name: make symboliclink of python3 and pip3 command in /usr/bin
   file: path=/usr/bin/{{ item }} state=link src=/opt/bin/{{ item }}
