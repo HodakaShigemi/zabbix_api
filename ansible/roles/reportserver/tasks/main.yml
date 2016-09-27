@@ -8,6 +8,7 @@
   with_items:
     - gcc-c++
     - python-devel 
+    - mbedtls
     - libjpeg-turbo-devel
     - libxml2
     - libxslt
