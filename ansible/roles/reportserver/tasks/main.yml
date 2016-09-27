@@ -14,7 +14,7 @@
     - libxslt
     - git
 
-- name:besure mbedtls are removed
+- name: besure mbedtls are removed
   yum: name={{ item }} state=absent
   with_items:
     - mbedtls
