@@ -51,6 +51,7 @@
     - python-docx==0.8.5
     - python-pptx
     - pyzabbix==0.7.4
+    - tqdm
 
 - name: make symboliclink of ipython3 command in /usr/bin
   file: path=/usr/bin/ipython3 state=link src=/opt/bin/ipython3
