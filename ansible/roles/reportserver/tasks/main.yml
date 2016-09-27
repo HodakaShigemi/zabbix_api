@@ -24,8 +24,11 @@
 
 - command: make altinstall chdir=/root/Python-3.4.3 creates=/opt/bin/python3.4
 
+- name: ensure pip is installed
+  command: /opt/bin/python3.4 -m ensurepip
+
 - name: make symboliclink of python3 and pip3 command in /usr/bin
-  file: path=/usr/bin/{{ item }} state=link src=/opt/bin/{{ item }}
+  file: path=/usr/bin/{{ item }} state=link src=/opt/bin/{{ item }}.4
   with_items:
     - python3
     - pip3
