@@ -14,11 +14,6 @@
     - libxslt
     - git
 
-- name: besure mbedtls are removed
-  yum: name={{ item }} state=absent
-  with_items:
-    - mbedtls
-
 - name: set python3.4.3 source file to the remote machine
   unarchive: src=Python-3.4.3.tar.xz dest=/root copy=yes
   when: ck_python3|failed
