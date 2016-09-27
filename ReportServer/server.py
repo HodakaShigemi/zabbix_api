@@ -6,14 +6,11 @@ from makeReport import ZabbixReportAPI
 from tempfile import TemporaryDirectory
 from tqdm import tqdm
 from datetime import datetime
-import zipfile, re
-
-#class CheckedCheckboxInput(widgets.CheckboxInput):
+import zipfile, re, sys
 
 class MultiCheckBoxField(SelectMultipleField):
     widget = widgets.ListWidget(prefix_label=False)
     option_widget = widgets.CheckboxInput()
-    #option_widget = widgets.html_params(checked=True)
 
 class ItemHistoryForm(Form):
     host_name = SelectField('Host Name')
@@ -28,9 +25,13 @@ class ReportForm(Form):
     time_till = StringField('Time till')
     submit = SubmitField('Download ZIP')
 
-#zabbix = ZabbixReportAPI(server='http://172.31.254.6/zabbix')
-zabbix = ZabbixReportAPI()
-report_template = '/root/zabbix_api/templateSI5.docx'
+if sys.argv[1:]:
+    zabbix_ip = sys.argv[1]
+else:
+    zabbix_ip = '172.31.254.6'
+
+zabbix = ZabbixReportAPI(server='http://{0}/zabbix'.format(zabbix_ip))
+report_template = './templateSI5.docx'
 
 @get('/')
 def redirect_to_top():
@@ -95,7 +96,7 @@ def save_history():
     
 @get('/report')
 def report():
-    title = 'レポートを.docxファイルで保存'
+    title = 'スクリーンを.docxファイルで保存'
     zabbix.update_screens_dictionary()
     screens = list(zabbix.screens_dictionary.keys())
     report_form = ReportForm()
@@ -136,7 +137,7 @@ def save_report():
                                                               time_till = time_till,
                                                               template = report_template,
                                                               save_as = tmp_dir.name + '/' + file_name)
-            zip_file.write(report_file_path)
+            zip_file.write(report_file_path, arcname=file_name)
         zip_file.close()
         return static_file(zip_file.filename, root ='/', download = 'reports.zip')
 
@@ -144,8 +145,7 @@ def save_report():
         print('no screens selected')
         for screen in forms.getall('screen'):
             print(screen)
-        return template('top', request = request, title = 'hoge')
-        print('hoge')
+        return template('top', request = request, title = 'スクリーンが選択されていませんでした')
 
 if __name__=='__main__':
     run(host='0.0.0.0', port=8080, debug=True, reloader=True)

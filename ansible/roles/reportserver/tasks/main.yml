@@ -11,9 +11,10 @@
     - libjpeg-turbo-devel
     - libxml2
     - libxslt
+    - git
 
 - name: set python3.4.3 source file to the remote machine
-  unarchive: src=Python3.4.3.tar.xz dest=/root/Python3.4.3 copy=yes
+  unarchive: src=https://www.python.org/ftp/python/3.4.3/Python-3.4.3.tar.xz dest=/root/Python3.4.3 copy=yes
   when: ck_python3|failed
 
 - name: configure, make, make alt install python3.4.3
@@ -22,6 +23,12 @@
     - ./configure --prefix=/opt
     - make
     - make altinstall
+
+- name: make symboliclink of python3 and pip3 command in /usr/bin
+  file: path=/usr/bin/{{ item }} state=link src=/opt/bin/{{ item }}
+  with_items:
+    - python3
+    - pip3
 
 - name: install python packages on which report server depends
   pip: executable=pip3 name={{ item }} state=latest
@@ -39,6 +46,17 @@
     - python-docx
     - python-pptx
     - pyzabbix
+
+- name: git clone report server python codes
+  command: {{ item }} chdir=/opt creates=/opt/zabbix_api
+  with_items:
+    - git clone https://github.com/HodakaShigemi/zabbix_api
+
+- name: make symbolic links of python codes
+  file: path=/nttme/{{ item }} state=link src=/opt/{{ item }}
+  with_items:
+    - ansible
+    - ReportServer
 
 - name: configure iptables(firewall)
   iptables: chain=INPUT ctstate=NEW protocol=tcp match=tcp destination_port={{ item }} jump=ACCEPT
