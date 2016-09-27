@@ -55,7 +55,7 @@
   command: git clone https://github.com/HodakaShigemi/zabbix_api chdir=/opt creates=/opt/zabbix_api
 
 - name: make symbolic links of python codes
-  file: path=/nttme/{{ item }} state=link src=/opt/{{ item }}
+  file: path=/nttme/{{ item }} state=link src=/opt/zabbix_api/{{ item }}
   with_items:
     - ansible
     - ReportServer
