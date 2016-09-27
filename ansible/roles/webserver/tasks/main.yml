@@ -13,15 +13,15 @@
 - name: diable zabbix repo
   replace: dest=/etc/yum.repos.d/zabbix.repo regexp='enabled=1' replace='enabled=0'  backup=yes
 
--name: create tables of zabbix
- mysql_db: login_host={{ dbserver }} name=zabbix login_user=zabbix login_password=zabbix import=/usr/share/doc/zabbix-server-mysql-2.4.*/create/{{ item }}
- with_items:
-   - schema.sql
-   - images.sql
-   - data.sql
+- name: create tables of zabbix
+  mysql_db: login_host={{ dbserver }} name=zabbix login_user=zabbix login_password=zabbix import=/usr/share/doc/zabbix-server-mysql-2.4.*/create/{{ item }}
+  with_items:
+    - schema.sql
+    - images.sql
+    - data.sql
 
 - name: configure php.ini
-  lineinfile: dest/etc/php.ini insertafter=';date\.timezone.*' line='date.timezone = Asia/Tokyo' state=present backup=yes
+  lineinfile: dest=/etc/php.ini insertafter=';date\.timezone.*' line='date.timezone=Asia/Tokyo' state=present backup=yes
 
 - name: set enforce disable with SELinux
   selinux: state=disabled

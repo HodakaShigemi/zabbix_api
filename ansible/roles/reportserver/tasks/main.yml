@@ -18,11 +18,11 @@
   when: ck_python3|failed
 
 - name: configure, make, make alt install python3.4.3
-  command: {{ item }} chdir=/root/Python3.4.3 creates=/opt/bin/python3.4
-  with_items:
-    - ./configure --prefix=/opt
-    - make
-    - make altinstall
+  command: ./configure --prefix=/opt chdir=/root/Python3.4.3 creates=/opt/bin/python3.4
+
+- command: make chdir=/root/Python3.4.3 creates=/opt/bin/python3.4
+
+- command: make altinstall chdir=/root/Python3.4.3 creates=/opt/bin/python3.4
 
 - name: make symboliclink of python3 and pip3 command in /usr/bin
   file: path=/usr/bin/{{ item }} state=link src=/opt/bin/{{ item }}
@@ -48,9 +48,7 @@
     - pyzabbix
 
 - name: git clone report server python codes
-  command: {{ item }} chdir=/opt creates=/opt/zabbix_api
-  with_items:
-    - git clone https://github.com/HodakaShigemi/zabbix_api
+  command: git clone https://github.com/HodakaShigemi/zabbix_api chdir=/opt creates=/opt/zabbix_api
 
 - name: make symbolic links of python codes
   file: path=/nttme/{{ item }} state=link src=/opt/{{ item }}
