@@ -7,7 +7,7 @@ self
 [webservers:children]
 self
 
-[dbserver:children]
+[dbservers:children]
 self
 
 [zabbix-servers:children]
