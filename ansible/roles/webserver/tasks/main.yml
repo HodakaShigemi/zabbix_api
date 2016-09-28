@@ -5,6 +5,7 @@
 - name: install zabbix-server
   yum: name={{ item }} state=installed enablerepo=zabbix,zabbix-non-supported
   with_items:
+    - MySQL-python
     - zabbix-web-mysql
     - zabbix-web-japanese
     - zabbix-agent
@@ -13,7 +14,7 @@
   replace: dest=/etc/yum.repos.d/zabbix.repo regexp='enabled=1' replace='enabled=0'  backup=yes
 
 - name: create tables of zabbix
-  mysql_db: login_host={{ dbserver }} name=zabbix login_user=zabbix login_password=zabbix import=/usr/share/doc/zabbix-server-mysql-2.4.*/create/{{ item }}
+  mysql_db: login_host={{ dbserver }} name=zabbix login_user=zabbix login_password=zabbix state=present target=/usr/share/doc/zabbix-server-mysql-2.4.*/create/{{ item }}
   with_items:
     - schema.sql
     - images.sql
@@ -26,7 +27,7 @@
   selinux: state=disabled
 
 - name: configure iptables(firewall)
-  iptables: chain=input ctstate=new protocol=tcp match=tcp destination_port={{ item }} jump=accept
+  iptables: chain=INPUT ctstate=NEW protocol=tcp match=tcp destination_port={{ item }} jump=ACCEPT
   with_items:
     - 80
     - 443
@@ -35,7 +36,7 @@
 - name: remove reject rule from iptables
   iptables: state=absent chain=input reject_with=icmp-host-prohibited
   register: iptables_reject_rule
-  when: iptabls_config.changed
+  when: iptables_config.changed
 
 - name: add reject rule from iptables
   iptables: state=present chain=input reject_with=icmp-host-prohibited

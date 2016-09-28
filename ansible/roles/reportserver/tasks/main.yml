@@ -85,7 +85,7 @@
 - name: remove reject rule from iptables
   iptables: state=absent chain=input reject_with=icmp-host-prohibited
   register: iptables_reject_rule
-  when: iptabls_config.changed
+  when: iptables_config.changed
 
 - name: add reject rule from iptables
   iptables: state=present chain=input reject_with=icmp-host-prohibited

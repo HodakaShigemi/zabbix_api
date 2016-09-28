@@ -11,7 +11,7 @@
     - zabbix-agent
 
 - name: configure iptables(firewall)
-  iptables: chain=input ctstate=new protocol=tcp match=tcp destination_port={{ item }} jump=accept
+  iptables: chain=INPUT ctstate=NEW protocol=tcp match=tcp destination_port={{ item }} jump=ACCEPT
   with_items:
     - 10050
   register: iptables_config
@@ -19,7 +19,7 @@
 - name: remove reject rule from iptables
   iptables: state=absent chain=input reject_with=icmp-host-prohibited
   register: iptables_reject_rule
-  when: iptabls_config.changed
+  when: iptables_config.changed
 
 - name: add reject rule from iptables
   iptables: state=present chain=input reject_with=icmp-host-prohibited

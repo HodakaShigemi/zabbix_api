@@ -1,5 +1,7 @@
 ---
 - hosts: webservers
+  vars:
+    dbserver: localhost
   roles:
 #    - common
     - webserver
