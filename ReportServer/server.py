@@ -88,6 +88,7 @@ def save_history():
             this_month = this_month
         )
     elif item_history_form.item.data != 'None':
+        print('selected item_id:' + item_history_form.item.data)
         tmp_dir = TemporaryDirectory(prefix = 'history')
         saved_path = zabbix.save_history_as_csv(
             itemid = item_history_form.item.data,
