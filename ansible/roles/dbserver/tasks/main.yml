@@ -9,10 +9,10 @@
   service: name=mysqld state=started enabled=yes
 
 - name: build database for zabbix
-  mysql_db: name=zabbix encoding=utf8 state=present login_password=password
+  mysql_db: name=zabbix encoding=utf8 state=present
 
 - name: create mysql user for zabbix
-  mysql_user: name=zabbix password=zabbix priv=zabbix.*:ALL,GRANT state=present login_password=password
+  mysql_user: name=zabbix password=zabbix priv=zabbix.*:ALL,GRANT state=present
 
 - name: configure iptables(firewall) on tcp
   iptables: chain=INPUT ctstate=NEW protocol=tcp match=tcp destination_port={{ item }} jump=ACCEPT
