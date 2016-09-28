@@ -17,3 +17,17 @@
   iptables: chain=INPUT ctstate=NEW protocol=tcp match=tcp destination_port={{ item }} jump=ACCEPT
   with_items:
     - 3306
+  register: iptables_config
+
+- name: remove reject rule from iptables
+  iptables: state=absent chain=input reject_with=icmp-host-prohibited
+  register: iptables_reject_rule
+  when: iptabls_config.changed
+
+- name: add reject rule from iptables
+  iptables: state=present chain=input reject_with=icmp-host-prohibited
+  when: iptables_reject_rule.changed
+
+- name: save iptables config
+  command: service iptables save
+  when: iptables_config.changed

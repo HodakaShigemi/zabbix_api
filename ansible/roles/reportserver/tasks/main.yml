@@ -3,11 +3,22 @@
   ignore_errors: True
   register: ck_python3
 
-- name: be sure dependencies are installed
+- name: be sure epel repository is installed
   yum: name={{ item }} state=installed
   with_items:
     - epel-release
+
+- name: be sure dependencies are installed
+  yum: name={{ item }} state=installed enablerepo=epel
+  with_items:
     - ansible
+
+- name: diable epel repo
+  replace: dest=/etc/yum.repos.d/epel.repo regexp='enabled=1' replace='enabled=0'  backup=yes
+
+- name: be sure dependencies are installed
+  yum: name={{ item }} state=installed
+  with_items:
     - gcc-c++
     - python-devel 
     - openssl-devel
@@ -69,3 +80,17 @@
   iptables: chain=INPUT ctstate=NEW protocol=tcp match=tcp destination_port={{ item }} jump=ACCEPT
   with_items:
     - 8080
+  register: iptables_config
+
+- name: remove reject rule from iptables
+  iptables: state=absent chain=input reject_with=icmp-host-prohibited
+  register: iptables_reject_rule
+  when: iptabls_config.changed
+
+- name: add reject rule from iptables
+  iptables: state=present chain=input reject_with=icmp-host-prohibited
+  when: iptables_reject_rule.changed
+
+- name: save iptables config
+  command: service iptables save
+  when: iptables_config.changed

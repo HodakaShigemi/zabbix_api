@@ -3,3 +3,15 @@ localhost
 
 [reportservers:children]
 self
+
+[webservers:children]
+self
+
+[dbserver:children]
+self
+
+[zabbix-servers:children]
+self
+
+[zabbix-agents:children]
+self

@@ -2,4 +2,4 @@
 - hosts: zabbix-servers
   roles:
 #    - common
-#    - zabbix-server
+    - zabbix-server
