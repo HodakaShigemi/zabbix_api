@@ -70,6 +70,9 @@
 - name: git clone report server python codes
   command: git clone https://github.com/HodakaShigemi/zabbix_api chdir=/opt creates=/opt/zabbix_api
 
+- name: copy Report Template file to ReportServer
+  copy: src=../ReportServer/templateSI5.docx dest=/opt/zabbix_api/ReportServer
+
 - name: make symbolic links of python codes
   file: path=/home/nttme/{{ item }} state=link src=/opt/zabbix_api/{{ item }}
   with_items:
