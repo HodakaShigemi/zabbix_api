@@ -14,7 +14,7 @@
   replace: dest=/etc/yum.repos.d/zabbix.repo regexp='enabled=1' replace='enabled=0'  backup=yes
 
 - name: create tables of zabbix
-  mysql_db: login_host={{ dbserver }} name=zabbix login_user=zabbix login_password=zabbix state=present target=/usr/share/doc/zabbix-server-mysql-2.4.*/create/{{ item }}
+  mysql_db: login_host={{ dbserver }} name=zabbix login_user=zabbix login_password=zabbix state=import target=/usr/share/doc/zabbix-server-mysql-2.4.*/create/{{ item }}
   with_items:
     - schema.sql
     - images.sql
