@@ -45,3 +45,6 @@
 - name: save iptables config
   command: service iptables save
   when: iptables_config.changed
+
+- name: start http server
+  service: name=httpd state=started enabled=yes
