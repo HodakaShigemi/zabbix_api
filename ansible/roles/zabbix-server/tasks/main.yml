@@ -13,6 +13,18 @@
 - name: set db password for zabbix-server
   lineinfile: dest=/etc/zabbix/zabbix_server.conf insertafter='# DBPassword=' line='DBPassword=zabbix' state=present backup=yes
 
+- name: find sql directory for zabbix
+  find: patterns='zabbix-server-mysql-2.4.*' paths='/usr/share/doc/' file_type=directory
+  register: sql_dir 
+
+- name: create tables of zabbix
+  mysql_db: login_host={{ dbserver }}name=zabbix login_user=zabbix login_password=zabbix state=import target={{ sql_dir.files[0].path }}/create/{{ item }}
+  with_items:
+    - schema.sql
+    - images.sql
+    - data.sql
+  ignore_errors: True
+
 - name: configure iptables(firewall)
   iptables: chain=INPUT ctstate=NEW protocol=tcp match=tcp destination_port={{ item }} jump=ACCEPT
   with_items:
