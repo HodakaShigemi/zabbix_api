@@ -1,46 +1,99 @@
 - name: be sure Python3.4.3 is not installed
-  command: ls -l /opt/bin/python3.4
+  command: ls -l /opt/bin/python3.4 creates=/opt/bin/python3.4
   ignore_errors: True
   register: ck_python3
+
+- name: be sure epel repository is installed
+  yum: name={{ item }} state=installed
+  with_items:
+    - epel-release
+
+- name: be sure dependencies are installed
+  yum: name={{ item }} state=installed enablerepo=epel
+  with_items:
+    - ansible
+
+- name: diable epel repo
+  replace: dest=/etc/yum.repos.d/epel.repo regexp='enabled=1' replace='enabled=0'  backup=yes
 
 - name: be sure dependencies are installed
   yum: name={{ item }} state=installed
   with_items:
     - gcc-c++
     - python-devel 
+    - openssl-devel
     - libjpeg-turbo-devel
     - libxml2
     - libxslt
+    - git
 
 - name: set python3.4.3 source file to the remote machine
-  unarchive: src=Python3.4.3.tar.xz dest=/root/Python3.4.3 copy=yes
+  unarchive: src=Python-3.4.3.tar.xz dest=/root copy=yes
   when: ck_python3|failed
 
 - name: configure, make, make alt install python3.4.3
-  command: {{ item }} chdir=/root/Python3.4.3 creates=/opt/bin/python3.4
+  command: ./configure --prefix=/opt chdir=/root/Python-3.4.3 creates=/opt/bin/python3.4
+
+- command: make chdir=/root/Python-3.4.3 creates=/opt/bin/python3.4
+
+- command: make altinstall chdir=/root/Python-3.4.3 creates=/opt/bin/python3.4
+
+- name: ensure pip is installed
+  command: /opt/bin/python3.4 -m ensurepip creates=/opt/bin/pip3.4
+
+- name: make symboliclink of python3 and pip3 command in /usr/bin
+  file: path=/usr/bin/{{ item }} state=link src=/opt/bin/{{ item }}.4
   with_items:
-    - ./configure --prefix=/opt
-    - make
-    - make altinstall
+    - python3
+    - pip3
 
 - name: install python packages on which report server depends
-  pip: executable=pip3 name={{ item }} state=latest
+  pip: executable=pip3 name={{ item }} state=present
   with_items:
-    - pip
     - ipython
-    - numpy
-    - pandas
+    - numpy==1.9.2
+    - pandas==0.16.2
     - datetime
-    - python-dateutil
+    - python-dateutil==2.4.2
     - bottle
-    - wtforms
+    - wtforms==2.0.2
     - pillow
     - openpyxl
-    - python-docx
+    - python-docx==0.8.5
     - python-pptx
-    - pyzabbix
+    - pyzabbix==0.7.4
+    - tqdm
+
+- name: make symboliclink of ipython3 command in /usr/bin
+  file: path=/usr/bin/ipython3 state=link src=/opt/bin/ipython3
+
+- name: git clone report server python codes
+  command: git clone https://github.com/HodakaShigemi/zabbix_api chdir=/opt creates=/opt/zabbix_api
+
+- name: copy Report Template file to ReportServer
+  copy: src=../ReportServer/templateSI5.docx dest=/opt/zabbix_api/ReportServer
+
+- name: make symbolic links of python codes
+  file: path=/home/nttme/{{ item }} state=link src=/opt/zabbix_api/{{ item }}
+  with_items:
+    - ansible
+    - ReportServer
 
 - name: configure iptables(firewall)
   iptables: chain=INPUT ctstate=NEW protocol=tcp match=tcp destination_port={{ item }} jump=ACCEPT
   with_items:
     - 8080
+  register: iptables_config
+
+- name: remove reject rule from iptables
+  iptables: state=absent chain=input reject_with=icmp-host-prohibited
+  register: iptables_reject_rule
+  when: iptables_config.changed
+
+- name: add reject rule from iptables
+  iptables: state=present chain=input reject_with=icmp-host-prohibited
+  when: iptables_reject_rule.changed
+
+- name: save iptables config
+  command: service iptables save
+  when: iptables_config.changed

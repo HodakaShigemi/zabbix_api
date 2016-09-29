@@ -1,0 +1,17 @@
+[self]
+localhost
+
+[reportservers:children]
+self
+
+[webservers:children]
+self
+
+[dbservers:children]
+self
+
+[zabbix-servers:children]
+self
+
+[zabbix-agents:children]
+self

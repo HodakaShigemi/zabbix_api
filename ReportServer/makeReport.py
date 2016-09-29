@@ -1,3 +1,6 @@
+#!/usr/bin/python3
+# -*- coding: utf-8
+
 from pyzabbix import ZabbixAPI
 from datetime import datetime
 from tempfile import TemporaryDirectory
@@ -84,12 +87,14 @@ class ZabbixReportAPI(object):
         特定のアイテムのヒストリーをcsvファイルに保存する。
         ヒストリの時間はUNIXタイムスタンプからISOフォーマットに変換する。
         """
-        item_attr = self.zapi.item.get(itemid = itemid, output=['key_', 'name', 'hostid'])[0]
-        host_attr = self.zapi.host.get(hostid = item_attr['hostid'], output=['name'])[0]
+        item_attr = self.zapi.item.get(itemids = itemid, output=['key_', 'name', 'hostid'])[0]
+        host_attr = self.zapi.host.get(hostids = item_attr['hostid'], output=['name'])[0]
         item_info = 'item_info -->,'
         item_info = item_info + str(item_attr)
         host_info = 'host_info -->,'
         host_info = host_info + str(host_attr)
+        print(host_info)
+        print(item_info)
         csv_file = open(save_as, mode ='w')
         csv_file.write(host_info + '\n' + item_info + '\n')
         csv_file.close()

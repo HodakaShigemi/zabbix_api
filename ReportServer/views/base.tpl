@@ -17,15 +17,15 @@
         %end
 
         % if request.path == '/history':
-            <li class="active"><a href="./history">取得値の一覧取得</a></li>
+            <li class="active"><a href="./history">ヒストリ取得</a></li>
         % else:
-            <li><a href="./history">取得値の一覧取得</a></li>
+            <li><a href="./history">ヒストリ取得</a></li>
         %end
 
         % if request.path == '/report':
-            <li class="active"><a href="./report">受光レポート取得</a></li>
+            <li class="active"><a href="./report">レポート取得</a></li>
         % else:
-            <li><a href="./report">受光レベルレポート取得</a></li>
+            <li><a href="./report">レポート取得</a></li>
         %end
         </ul>
     </nav>

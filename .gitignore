@@ -1,5 +1,8 @@
 # ansible playbooks retry file
 *retry
+# pytho cache file
+*pyc
+*__pycache__*
 
 #sphinx documents
 doc/*

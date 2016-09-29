@@ -1,6 +1,7 @@
 ---
 
-- include: webserver
-- include: dbserver
-- include: zabbix-server
-- include: zabbix-agent
+- include: dbserver.yml
+- include: webserver.yml
+- include: zabbix-server.yml
+- include: zabbix-agent.yml
+- include: reportserver.yml

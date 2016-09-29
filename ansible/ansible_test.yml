@@ -1,8 +1,0 @@
-- hosts: zabbix-server
-  vars:
-    ansible_ssh_user: ansible
-  become: yes
-  become_method: su
-  tasks:
-    - name: starts mysql-server
-      service: name=mysqld state=stopped
