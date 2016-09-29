@@ -1,4 +1,5 @@
 ---
+
 - name: users exist
   user: name={{item.name}} state=present password={{item.passsword}} groups={{item.groups}}
   with_items: users
