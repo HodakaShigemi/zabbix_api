@@ -28,7 +28,7 @@
     - git
 
 - name: set python3.4.3 source file to the remote machine
-  unarchive: src=Python-3.4.3.tar.xz dest=/root copy=yes
+  unarchive: src=https://www.python.org/ftp/python/3.4.3/Python-3.4.3.tar.xz dest=/root copy=no
   when: ck_python3|failed
 
 - name: configure, make, make alt install python3.4.3
@@ -70,14 +70,14 @@
 - name: git clone report server python codes
   command: git clone https://github.com/HodakaShigemi/zabbix_api chdir=/opt creates=/opt/zabbix_api
 
-- name: copy Report Template file to ReportServer
-  copy: src=../ReportServer/templateSI5.docx dest=/opt/zabbix_api/ReportServer
-
 - name: make symbolic links of python codes
   file: path=/home/nttme/{{ item }} state=link src=/opt/zabbix_api/{{ item }}
   with_items:
     - ansible
     - ReportServer
+
+- name: copy Report Template file to ReportServer
+  copy: src=../ReportServer/templateSI5.docx dest=/opt/zabbix_api/ReportServer
 
 - name: configure iptables(firewall)
   iptables: chain=INPUT ctstate=NEW protocol=tcp match=tcp destination_port={{ item }} jump=ACCEPT
