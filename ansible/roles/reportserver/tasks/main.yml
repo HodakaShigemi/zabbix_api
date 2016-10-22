@@ -19,12 +19,13 @@
 - name: be sure dependencies are installed
   yum: name={{ item }} state=installed
   with_items:
+    - xz
     - gcc-c++
     - python-devel 
     - openssl-devel
     - libjpeg-turbo-devel
-    - libxml2
-    - libxslt
+    - libxml2-devel
+    - libxslt-devel
     - git
 
 - name: set python3.4.3 source file to the remote machine
@@ -50,6 +51,7 @@
 - name: install python packages on which report server depends
   pip: executable=pip3 name={{ item }} state=present
   with_items:
+    - lxml
     - ipython
     - numpy==1.9.2
     - pandas==0.16.2
@@ -80,7 +82,7 @@
   copy: src=../ReportServer/templateSI5.docx dest=/opt/zabbix_api/ReportServer
 
 - name: configure iptables(firewall)
-  iptables: chain=INPUT ctstate=NEW protocol=tcp match=tcp destination_port={{ item }} jump=ACCEPT
+  iptables: chain=INPUT ctstate=NEW protocol=tcp match=tcp destination_port={{ item }} jump=ACCEPT state=present
   with_items:
     - 8080
   register: iptables_config
