@@ -1,0 +1,17 @@
+[vms]
+192.168.56.109
+
+[reportservers:children]
+vms
+
+[webservers:children]
+vms
+
+[dbservers:children]
+vms
+
+[zabbix-servers:children]
+vms
+
+[zabbix-agents:children]
+vms

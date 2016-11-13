@@ -81,20 +81,18 @@
 - name: copy Report Template file to ReportServer
   copy: src=../ReportServer/templateSI5.docx dest=/opt/zabbix_api/ReportServer
 
+- name: check iptables setting
+  shell: iptables -L | grep -q reportServer
+  register: register_reportServer
+  failed_when: register_reportServer.rc not in [0, 1]
+  changed_when: false
+
 - name: configure iptables(firewall)
-  iptables: chain=INPUT ctstate=NEW protocol=tcp match=tcp destination_port={{ item }} jump=ACCEPT state=present
+  shell: iptables -I INPUT -p tcp -m state --state NEW -m tcp --dport {{ item }} -j ACCEPT -m comment --comment "reportServer"
+  register: iptables_config
   with_items:
     - 8080
-  register: iptables_config
-
-- name: remove reject rule from iptables
-  iptables: state=absent chain=input reject_with=icmp-host-prohibited
-  register: iptables_reject_rule
-  when: iptables_config.changed
-
-- name: add reject rule from iptables
-  iptables: state=present chain=input reject_with=icmp-host-prohibited
-  when: iptables_reject_rule.changed
+  when: register_reportServer.rc == 1
 
 - name: save iptables config
   command: service iptables save
