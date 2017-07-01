@@ -13,3 +13,7 @@ ansible/vms
 #vars files which depends on environment
 ansible/group_vars
 ansible/host_vars
+
+#vim's cache files
+*~
+
