@@ -12,6 +12,7 @@
   yum: name={{ item }} state=installed enablerepo=epel
   with_items:
     - ansible
+    - libselinux-python
 
 - name: diable epel repo
   replace: dest=/etc/yum.repos.d/epel.repo regexp='enabled=1' replace='enabled=0'  backup=yes
